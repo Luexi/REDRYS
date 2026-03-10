@@ -417,6 +417,13 @@ ul, ol {
   margin-bottom: 0.75rem;
 }
 
+.hero__academic-card .card-logo {
+  width: 4rem;
+  height: 4rem;
+  object-fit: contain;
+  margin-bottom: 0.75rem;
+}
+
 .hero__academic-card .card-title {
   font-family: var(--font-serif);
   font-size: 1.25rem;

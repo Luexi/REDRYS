@@ -40,20 +40,16 @@ const base = import.meta.env.BASE_URL;
       <div class="hero__editorial">
         <div class="hero__editorial-grid">
           <div class="hero__img-primary">
-            <div class="img-placeholder" style="aspect-ratio: 3/4;">
-              <span>Investigación académica</span>
-            </div>
+            <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&h=800&fit=crop" alt="Investigación académica" class="hero-img" style="aspect-ratio: 3/4;" />
           </div>
 
           <div class="hero__img-secondary-wrap">
             <div class="hero__img-secondary">
-              <div class="img-placeholder" style="aspect-ratio: 4/5;">
-                <span>Colaboración universitaria</span>
-              </div>
+              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=480&h=600&fit=crop" alt="Colaboración universitaria" class="hero-img" style="aspect-ratio: 4/5;" />
             </div>
 
             <div class="academic-card hero__academic-card">
-              <div class="corner-bracket"></div>
+              <img src={`${base}images/logo-redrys-uagro.png`} alt="Logo REDRYS" class="card-logo" width="64" height="64" />
               <p class="card-title">Red académica multidisciplinaria</p>
               <div class="thin-rule" style="margin-top: 1rem;"></div>
               <p class="card-caption">Fundada en rigor científico</p>
