@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import ObjectiveCard from '../components/ObjectiveCard.astro';
+import { objetivoGeneral, objetivosEspecificos } from '../data/objetivos';
+---
+
+<BaseLayout title="Objetivos" description="Objetivos generales y específicos de la REDRYS — Red de Educación para el Desarrollo Regional y Sostenible.">
+
+  <section class="page-section container">
+    <SectionTitle
+      label="REDRYS"
+      title="Objetivos"
+      subtitle="Los objetivos de la red se derivan de su reglamento y orientan todas las actividades de investigación, vinculación, difusión y formación."
+    />
+
+    <div class="content-block">
+      <h2 class="content-block__title">Objetivo general</h2>
+      <div class="objective-highlight">
+        {objetivoGeneral}
+      </div>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Objetivos específicos</h2>
+      <div class="cards-grid" style="margin-top: 1.5rem;">
+        {objetivosEspecificos.map((obj) => (
+          <ObjectiveCard letter={obj.letter} text={obj.text} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>

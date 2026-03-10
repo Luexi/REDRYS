@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout title="Contacto" description="Información de contacto de la REDRYS — Red de Educación para el Desarrollo Regional y Sostenible.">
+
+  <section class="page-section container">
+    <SectionTitle
+      label="Contacto"
+      title="Contacto"
+      subtitle="Para consultas, propuestas de colaboración o solicitudes de incorporación a la red."
+    />
+
+    <div class="contact-info">
+      <div class="contact-item">
+        <span class="contact-item__label">Correo electrónico</span>
+        <span class="contact-item__value">
+          <a href={`mailto:${site.email}`}>{site.email}</a>
+        </span>
+      </div>
+
+      <div class="contact-item">
+        <span class="contact-item__label">Teléfono</span>
+        <span class="contact-item__value">{site.phone}</span>
+      </div>
+
+      <div class="contact-item">
+        <span class="contact-item__label">Dirección</span>
+        <span class="contact-item__value">
+          {site.address}<br />{site.city}
+        </span>
+      </div>
+
+      <div class="contact-item">
+        <span class="contact-item__label">Coordinador</span>
+        <span class="contact-item__value">{site.coordinator}</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 2.5rem;">
+      <a class="btn btn--primary" href={`mailto:${site.email}`}>
+        Escribir un correo
+      </a>
+    </div>
+
+    <div class="content-block" style="margin-top: 3rem;">
+      <p class="content-block__text">
+        Las solicitudes de incorporación a la red deben incluir currículum vitae y carta de intención,
+        y serán evaluadas por el Comité Académico conforme al reglamento vigente.
+      </p>
+    </div>
+  </section>
+
+</BaseLayout>

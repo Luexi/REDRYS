@@ -1,0 +1,13 @@
+---
+interface Props {
+  letter: string;
+  text: string;
+}
+
+const { letter, text } = Astro.props;
+---
+
+<div class="objective-card">
+  <div class="objective-card__letter">{letter}</div>
+  <p class="objective-card__text">{text}</p>
+</div>

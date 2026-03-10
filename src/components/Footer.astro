@@ -1,0 +1,47 @@
+---
+import { site, footerLinks } from '../data/site';
+
+const base = import.meta.env.BASE_URL;
+function url(path: string) {
+  return `${base}${path === '/' ? '' : path.slice(1)}`;
+}
+---
+
+<footer class="site-footer container">
+  <div class="thin-rule site-footer__rule"></div>
+
+  <div class="site-footer__content">
+    <div class="site-footer__info">
+      <span class="site-footer__brand">{site.name}</span>
+      <span class="site-footer__fullname">{site.fullName}</span>
+      <span class="site-footer__contact">
+        <a href={`mailto:${site.email}`}>{site.email}</a>
+      </span>
+    </div>
+
+    <div class="site-footer__stats">
+      <div>
+        <span class="site-footer__stat-title">Investigación</span>
+        <span class="site-footer__stat-label">Líneas de aplicación</span>
+      </div>
+      <div>
+        <span class="site-footer__stat-title">Vinculación</span>
+        <span class="site-footer__stat-label">Impacto regional</span>
+      </div>
+    </div>
+
+    <div class="site-footer__tagline">
+      &ldquo;{site.tagline}&rdquo;
+    </div>
+  </div>
+
+  <div class="site-footer__links">
+    {footerLinks.map((link) => (
+      <a class="site-footer__link" href={url(link.href)}>{link.label}</a>
+    ))}
+  </div>
+
+  <p class="site-footer__institutional">
+    {site.faculty} · {site.institution}
+  </p>
+</footer>

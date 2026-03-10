@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+
+# Archivos originales sueltos (ya copiados a public/)
+/code.html
+/screen.png
+/*.pdf
+/*.docx.pdf
+/Logo REDRYS UAGro.png

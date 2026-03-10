@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import { site } from '../data/site';
+import { lineas } from '../data/lineas';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="La Red" description="Conoce la Red de Educación para el Desarrollo Regional y Sostenible (REDRYS), su naturaleza, estructura y líneas de investigación.">
+
+  <section class="page-section container">
+    <SectionTitle
+      label="REDRYS"
+      title="La Red"
+      subtitle="Red de Educación para el Desarrollo Regional y Sostenible"
+    />
+
+    <!-- Naturaleza -->
+    <div class="content-block">
+      <h2 class="content-block__title">Naturaleza de la Red</h2>
+      <p class="content-block__text">
+        La REDRYS es una red académica de investigación adscrita a la {site.faculty} de la {site.institution},
+        orientada a impulsar campos de estudio con incidencia social en el estado de Guerrero.
+        Reúne a profesores-investigadores, estudiantes de posgrado y colaboradores externos
+        para articular esfuerzos de investigación aplicada y de frontera.
+      </p>
+    </div>
+
+    <!-- Contexto de creación -->
+    <div class="content-block">
+      <h2 class="content-block__title">Contexto de creación</h2>
+      <p class="content-block__text">
+        La red fue constituida formalmente el {site.founded} en la Ciudad de Acapulco, Guerrero,
+        con la participación de 23 miembros fundadores provenientes principalmente de la FCA
+        y la FACOM de la UAGro. Su vigencia inicial es de tres años, sujeta a evaluación
+        anual de resultados.
+      </p>
+    </div>
+
+    <!-- Líneas de investigación -->
+    <div class="content-block">
+      <h2 class="content-block__title">Líneas de investigación</h2>
+      <p class="content-block__text">
+        La REDRYS cultiva tres líneas principales de investigación e incidencia:
+      </p>
+      <div class="cards-grid" style="margin-top: 1.5rem;">
+        {lineas.map((linea) => (
+          <div class="line-card">
+            <div class="line-card__icon"></div>
+            <h3 class="line-card__title">{linea.title}</h3>
+            <p class="line-card__description">{linea.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Estructura organizativa -->
+    <div class="content-block">
+      <h2 class="content-block__title">Estructura organizativa</h2>
+      <div class="structure-grid">
+        <div class="structure-item">
+          <h3 class="structure-item__title">Comité Académico</h3>
+          <p class="structure-item__text">
+            Integrado por 5 miembros (3 profesores-investigadores y 2 estudiantes de posgrado).
+            Aprueba proyectos, admite nuevos integrantes y supervisa el cumplimiento de los objetivos de la red.
+          </p>
+        </div>
+        <div class="structure-item">
+          <h3 class="structure-item__title">Responsable de la Red</h3>
+          <p class="structure-item__text">
+            Elegido cada 2 años mediante votación. Representa legalmente a la red,
+            convoca reuniones y coordina las actividades generales.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comisiones de trabajo -->
+    <div class="content-block">
+      <h2 class="content-block__title">Comisiones de trabajo</h2>
+      <div class="commission-list">
+        <div class="commission-item">
+          <span class="commission-item__marker"></span>
+          <span class="commission-item__name">Investigación</span>
+        </div>
+        <div class="commission-item">
+          <span class="commission-item__marker"></span>
+          <span class="commission-item__name">Vinculación</span>
+        </div>
+        <div class="commission-item">
+          <span class="commission-item__marker"></span>
+          <span class="commission-item__name">Difusión</span>
+        </div>
+        <div class="commission-item">
+          <span class="commission-item__marker"></span>
+          <span class="commission-item__name">Formación</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sede -->
+    <div class="content-block">
+      <h2 class="content-block__title">Sede institucional</h2>
+      <p class="content-block__text">
+        {site.address}, {site.city}.
+      </p>
+    </div>
+
+    <!-- Documentos -->
+    <div class="content-block">
+      <h2 class="content-block__title">Documentos fundacionales</h2>
+      <div class="documents-list">
+        <a class="document-link" href={`${base}docs/acta-creacion-redrys.pdf`} target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Acta de creación de la REDRYS (PDF)
+        </a>
+        <a class="document-link" href={`${base}docs/reglamento-redrys.pdf`} target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Reglamento de la REDRYS (PDF)
+        </a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
