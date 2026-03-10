@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .astro/
+estadored.md
 
 # Archivos originales sueltos (ya copiados a public/)
 /code.html

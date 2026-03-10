@@ -2,7 +2,7 @@
 
 Sitio web estático de la **Red de Educación para el Desarrollo Regional y Sostenible (REDRYS)**, construido con [Astro](https://astro.build).
 
-Publicado en: **https://luexi.github.io/REDRYS/**
+Publicado en: **https://redrys.org**
 
 Repositorio: **https://github.com/Luexi/REDRYS**
 
@@ -13,6 +13,7 @@ Repositorio: **https://github.com/Luexi/REDRYS**
   workflows/
     deploy.yml          → GitHub Actions: build y deploy automático a GitHub Pages
 public/
+  CNAME                 → Dominio custom para GitHub Pages (redrys.org)
   images/
     logo-redrys-uagro.png
     screen.png
@@ -34,7 +35,7 @@ src/
   layouts/
     BaseLayout.astro     → Layout base (head, fonts, header, footer)
   pages/
-    index.astro          → Inicio (homepage migrada del diseño aprobado)
+    index.astro          → Inicio (homepage con hero editorial y fotos de stock)
     la-red.astro         → La Red (descripción, estructura, comisiones, documentos)
     objetivos.astro      → Objetivos generales y específicos
     integrantes.astro    → Directorio de miembros fundadores
@@ -43,14 +44,14 @@ src/
     repositorio.astro    → Repositorio académico (placeholder — próximamente)
   styles/
     global.css           → Sistema de estilos completo (CSS vanilla, sin Tailwind)
-astro.config.mjs         → Configuración de Astro (site + base para GitHub Pages)
+astro.config.mjs         → Configuración de Astro (site: https://redrys.org)
 ```
 
 ## Páginas
 
 | Ruta | Descripción |
 |---|---|
-| `/` | Inicio — hero editorial, CTA, atribución institucional |
+| `/` | Inicio — hero editorial con fotos de stock, logo REDRYS, CTA, atribución institucional |
 | `/la-red/` | Naturaleza, contexto de creación, líneas de investigación, estructura, comisiones, sede, documentos PDF |
 | `/objetivos/` | Objetivo general destacado + 4 objetivos específicos en tarjetas |
 | `/integrantes/` | Directorio de 23 miembros fundadores con dependencia (FCA/FACOM) |
@@ -74,28 +75,37 @@ astro.config.mjs         → Configuración de Astro (site + base para GitHub Pa
 
 ```bash
 npm install          # Instalar dependencias
-npm run dev          # Servidor de desarrollo → http://localhost:4321/REDRYS/
+npm run dev          # Servidor de desarrollo → http://localhost:4321/
 npm run build        # Build de producción (genera carpeta dist/)
 npm run preview      # Preview del build de producción
 ```
 
-## Deploy (GitHub Pages)
+## Deploy
 
-El deploy es automático mediante GitHub Actions. Cada push a `main` ejecuta el workflow `.github/workflows/deploy.yml` que:
+### Dominio y hosting
+
+- **Dominio:** `redrys.org` (registrado en Neubox)
+- **DNS:** Cloudflare (plan gratuito, modo DNS only)
+- **Hosting:** GitHub Pages con deploy automático via GitHub Actions
+
+### Deploy automático
+
+Cada push a `main` ejecuta el workflow `.github/workflows/deploy.yml` que:
 
 1. Instala dependencias
 2. Ejecuta `astro build`
 3. Sube el contenido de `dist/` a GitHub Pages
 
-### Configuración necesaria en GitHub
+### Configuración en GitHub
 
 1. Ir a **Settings → Pages** del repositorio
 2. En **Source**, seleccionar **GitHub Actions**
-3. El sitio se publica automáticamente en `https://luexi.github.io/REDRYS/`
+3. En **Custom domain**, escribir `redrys.org` y guardar
+4. Marcar **Enforce HTTPS** (una vez que pase el DNS check)
 
-### Nota sobre `base`
+### Archivo CNAME
 
-En `astro.config.mjs`, la propiedad `base: '/REDRYS/'` hace que todas las rutas y assets incluyan el prefijo `/REDRYS/` requerido por GitHub Pages. En desarrollo local, las URLs incluyen este prefijo (ej: `localhost:4321/REDRYS/objetivos/`).
+El archivo `public/CNAME` contiene `redrys.org` y es necesario para que GitHub Pages sirva el sitio en el dominio custom. No eliminarlo.
 
 ## Paleta de colores
 
@@ -121,3 +131,4 @@ En `astro.config.mjs`, la propiedad `base: '/REDRYS/'` hace que todas las rutas 
 - Google Fonts (Instrument Serif + Inter)
 - Menú móvil CSS-only (sin JavaScript del lado del cliente)
 - GitHub Actions para deploy automático
+- Dominio custom via Cloudflare DNS → GitHub Pages
