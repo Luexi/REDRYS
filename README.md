@@ -29,7 +29,7 @@ src/
     ObjectiveCard.astro  → Tarjeta de objetivo específico
   data/
     site.ts              → Datos globales: nombre, correo, teléfono, sede, navegación
-    integrantes.ts       → Lista de 23 miembros fundadores
+    integrantes.ts       → Lista de 22 miembros fundadores
     objetivos.ts         → Objetivo general y específicos
     lineas.ts            → Líneas de investigación
   layouts/
@@ -54,7 +54,7 @@ astro.config.mjs         → Configuración de Astro (site: https://redrys.org)
 | `/` | Inicio — hero editorial con fotos de stock, logo REDRYS, CTA, atribución institucional |
 | `/la-red/` | Naturaleza, contexto de creación, líneas de investigación, estructura, comisiones, sede, documentos PDF |
 | `/objetivos/` | Objetivo general destacado + 4 objetivos específicos en tarjetas |
-| `/integrantes/` | Directorio de 23 miembros fundadores con dependencia (FCA/FACOM) |
+| `/integrantes/` | Directorio de 22 miembros fundadores con dependencia (FCA/FACOM) |
 | `/contacto/` | Correo, teléfono, dirección, botón mailto |
 | `/galeria/` | Placeholder elegante — próximamente |
 | `/repositorio/` | Placeholder con categorías (Publicaciones, Ponencias, Material didáctico) |

@@ -22,7 +22,6 @@ export const integrantes: Integrante[] = [
   { name: 'José Luis Susano García', dependency: 'FACOM', role: 'Miembro fundador' },
   { name: 'Remigio Marín Ibarra', dependency: 'FCA', role: 'Miembro fundador' },
   { name: 'Liliana Galeana Camacho', dependency: 'FCA', role: 'Miembro fundador' },
-  { name: 'Fermín Rodríguez Jaimez', dependency: 'FCA', role: 'Miembro fundador' },
   { name: 'Moisés Carmona Serrano', dependency: 'FCA', role: 'Miembro fundador' },
   { name: 'Rosa Alejandra Vázquez Martínez', dependency: 'FCA', role: 'Miembro fundador' },
   { name: 'Nallety Vázquez Martínez', dependency: 'FCA', role: 'Miembro fundador' },

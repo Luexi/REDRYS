@@ -3,8 +3,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import { site } from '../data/site';
 import { lineas } from '../data/lineas';
+import { integrantes } from '../data/integrantes';
 
 const base = import.meta.env.BASE_URL;
+const totalIntegrantes = integrantes.length;
 ---
 
 <BaseLayout title="La Red" description="Conoce la Red de Educación para el Desarrollo Regional y Sostenible (REDRYS), su naturaleza, estructura y líneas de investigación.">
@@ -32,7 +34,7 @@ const base = import.meta.env.BASE_URL;
       <h2 class="content-block__title">Contexto de creación</h2>
       <p class="content-block__text">
         La red fue constituida formalmente el {site.founded} en la Ciudad de Acapulco, Guerrero,
-        con la participación de 23 miembros fundadores provenientes principalmente de la FCA
+        con la participación de {totalIntegrantes} miembros fundadores provenientes principalmente de la FCA
         y la FACOM de la UAGro. Su vigencia inicial es de tres años, sujeta a evaluación
         anual de resultados.
       </p>

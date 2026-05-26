@@ -3,6 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import MemberCard from '../components/MemberCard.astro';
 import { integrantes } from '../data/integrantes';
+
+const totalIntegrantes = integrantes.length;
 ---
 
 <BaseLayout title="Integrantes" description="Directorio de miembros fundadores de la REDRYS — Red de Educación para el Desarrollo Regional y Sostenible.">
@@ -11,7 +13,7 @@ import { integrantes } from '../data/integrantes';
     <SectionTitle
       label="REDRYS"
       title="Integrantes"
-      subtitle="La red fue constituida por 23 miembros fundadores provenientes de la Facultad de Contaduría y Administración y la Facultad de Comunicación de la UAGro."
+      subtitle={`La red fue constituida por ${totalIntegrantes} miembros fundadores provenientes de la Facultad de Contaduría y Administración y la Facultad de Comunicación de la UAGro.`}
     />
 
     <div class="cards-grid cards-grid--3">
