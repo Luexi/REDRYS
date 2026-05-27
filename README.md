@@ -132,3 +132,13 @@ El archivo `public/CNAME` contiene `redrys.org` y es necesario para que GitHub P
 - Menú móvil CSS-only (sin JavaScript del lado del cliente)
 - GitHub Actions para deploy automático
 - Dominio custom via Cloudflare DNS → GitHub Pages
+
+## SEO y Posicionamiento (Google)
+
+El sitio cuenta con una arquitectura optimizada para indexación y posicionamiento web (SEO):
+
+- **Sitemap Automatizado:** Integrado con `@astrojs/sitemap` para generar automáticamente `sitemap-index.xml` y `sitemap-0.xml` en cada compilación de producción.
+- **Control de Indexación:** Archivo `public/robots.txt` para controlar a los rastreadores e indicarles la ruta del sitemap.
+- **URLs Canónicas:** Generadas de manera dinámica para evitar contenido duplicado entre diferentes subdominios o versiones de rutas.
+- **Previsualizaciones Enriquecidas:** Metadatos Open Graph y Twitter Cards dinámicos para mostrar imágenes y descripciones consistentes al compartir enlaces en WhatsApp o redes sociales.
+- **Datos Estructurados (Schema.org / JSON-LD):** Marcado dinámico en formato de organización académica (`EducationalOrganization`) que vincula semánticamente a la REDRYS con la **Universidad Autónoma de Guerrero (UAGro)**, su dirección, coordinador fundador e información de contacto.

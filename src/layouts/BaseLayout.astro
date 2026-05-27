@@ -1,17 +1,32 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
 import '../styles/global.css';
 
 interface Props {
   title: string;
   description?: string;
+  ogImage?: string;
 }
 
 const {
   title,
   description = 'Red de Educación para el Desarrollo Regional y Sostenible — UAGro',
+  ogImage = 'images/screen.png',
 } = Astro.props;
+
+// Generación limpia del Canonical URL absoluta
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
+
+// Generación de la URL absoluta para Open Graph
+const cleanOgPath = ogImage.startsWith('/') ? ogImage.slice(1) : ogImage;
+const absoluteOgImage = new URL(`${import.meta.env.BASE_URL}${cleanOgPath}`, Astro.site).href;
+
+// Título formateado enriquecido para la Home y páginas internas
+const formattedTitle = title === 'Inicio'
+  ? `${site.fullName} — REDRYS (UAGro)`
+  : `${title} — REDRYS`;
 ---
 
 <!doctype html>
@@ -19,15 +34,76 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} — REDRYS</title>
+    
+    <!-- Metaetiquetas Básicas de SEO -->
+    <title>{formattedTitle}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <meta name="theme-color" content="#0D2F36" />
+
+    <!-- Iconos premium y compatibilidad móvil -->
     <link rel="icon" type="image/png" href={`${import.meta.env.BASE_URL}images/logo-redrys-uagro.png`} />
+    <link rel="apple-touch-icon" href={`${import.meta.env.BASE_URL}images/logo-redrys-uagro.png`} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={formattedTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={absoluteOgImage} />
+    <meta property="og:site_name" content="REDRYS" />
+    <meta property="og:locale" content="es_MX" />
+
+    <!-- Twitter Cards -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={formattedTitle} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={absoluteOgImage} />
+
+    <!-- Conexiones rápidas de Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Marcado de Datos Estructurados Schema.org (JSON-LD) para Organizaciones Académicas -->
+    <script type="application/ld+json" is:inline>
+      {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Red de Educación para el Desarrollo Regional y Sostenible",
+        "alternateName": "REDRYS",
+        "url": "https://redrys.org",
+        "logo": "https://redrys.org/images/logo-redrys-uagro.png",
+        "description": "Una red académica adscrita a la Universidad Autónoma de Guerrero dedicada a impulsar el desarrollo regional y sostenible a través de la investigación aplicada.",
+        "parentOrganization": {
+          "@type": "EducationalOrganization",
+          "name": "Universidad Autónoma de Guerrero",
+          "url": "https://uagro.mx"
+        },
+        "founder": {
+          "@type": "Person",
+          "name": "Dr. Rubén Hernández Chavarría"
+        },
+        "foundingDate": "2024-10-28",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Edificio de Posgrado, Facultad de Contaduría y Administración",
+          "addressLocality": "Acapulco",
+          "addressRegion": "Guerrero",
+          "addressCountry": "MX"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+52-7441069320",
+          "contactType": "Coordinación",
+          "email": "redrys@uagro.mx"
+        }
+      }
+    </script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Ir al contenido principal</a>
