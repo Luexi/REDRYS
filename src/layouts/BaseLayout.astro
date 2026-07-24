@@ -8,12 +8,14 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  noindex?: boolean;
 }
 
 const {
   title,
   description = 'Red de Educación para el Desarrollo Regional y Sostenible — UAGro',
   ogImage = 'images/screen.png',
+  noindex = false,
 } = Astro.props;
 
 // Generación limpia del Canonical URL absoluta
@@ -40,6 +42,7 @@ const formattedTitle = title === 'Inicio'
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
     <meta name="theme-color" content="#0D2F36" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <!-- Iconos premium y compatibilidad móvil -->
     <link rel="icon" type="image/png" href={`${import.meta.env.BASE_URL}images/logo-redrys-uagro.png`} />
@@ -51,15 +54,17 @@ const formattedTitle = title === 'Inicio'
     <meta property="og:title" content={formattedTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={absoluteOgImage} />
+    <meta property="og:image:alt" content="Sitio oficial de la REDRYS" />
     <meta property="og:site_name" content="REDRYS" />
     <meta property="og:locale" content="es_MX" />
 
     <!-- Twitter Cards -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={canonicalURL} />
-    <meta property="twitter:title" content={formattedTitle} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={absoluteOgImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={formattedTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absoluteOgImage} />
+    <meta name="twitter:image:alt" content="Sitio oficial de la REDRYS" />
 
     <!-- Conexiones rápidas de Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

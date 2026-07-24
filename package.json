@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:sites": "astro build && node scripts/prepare-sites-build.mjs",
+    "test:worker": "node --test tests/sites-worker.test.mjs",
+    "verify:sites": "npm run test:worker && npm run build:sites && node scripts/verify-sites-build.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

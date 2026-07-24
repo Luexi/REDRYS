@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Página no encontrada"
+  description="La página solicitada no existe en el sitio de la REDRYS."
+  noindex={true}
+>
+  <section class="page-section container">
+    <div class="page-placeholder">
+      <p class="section-title__label">Error 404</p>
+      <h1 class="page-placeholder__title">Página no encontrada</h1>
+      <p class="page-placeholder__text">
+        La dirección solicitada no existe o fue escrita incorrectamente.
+      </p>
+      <div style="margin-top: 2rem;">
+        <a class="btn btn--primary" href="/">Volver al inicio</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -80,32 +80,49 @@ npm run build        # Build de producción (genera carpeta dist/)
 npm run preview      # Preview del build de producción
 ```
 
-## Deploy
+## Alojamiento y publicación
 
-### Dominio y hosting
+### Arquitectura
 
-- **Dominio:** `redrys.org` (registrado en Neubox)
-- **DNS:** Cloudflare (plan gratuito, modo DNS only)
-- **Hosting:** GitHub Pages con deploy automático via GitHub Actions
+- **Dominio canónico:** `https://redrys.org` (registrado en Neubox).
+- **DNS:** administrado desde Neubox. Los nameservers autoritativos observados
+  son `ns301.cloud-mx-ns.net` a `ns305.cloud-mx-ns.net`; no se usa Cloudflare.
+- **Hosting objetivo:** ChatGPT Sites.
+- **Código y respaldo:** este repositorio de GitHub.
 
-### Deploy automático
+La migración conserva temporalmente GitHub Pages como hosting de respaldo hasta
+que Sites valide el dominio y emita un certificado correcto. Durante ese
+periodo no deben eliminarse `.github/workflows/deploy.yml` ni `public/CNAME`.
 
-Cada push a `main` ejecuta el workflow `.github/workflows/deploy.yml` que:
+### Validación local
 
-1. Instala dependencias
-2. Ejecuta `astro build`
-3. Sube el contenido de `dist/` a GitHub Pages
+```bash
+npm ci
+npm run verify:sites
+```
 
-### Configuración en GitHub
+`verify:sites` prueba el Worker, compila Astro, prepara el artefacto requerido
+por Sites y valida rutas, SEO, sitemap, 404, imágenes y PDFs.
 
-1. Ir a **Settings → Pages** del repositorio
-2. En **Source**, seleccionar **GitHub Actions**
-3. En **Custom domain**, escribir `redrys.org` y guardar
-4. Marcar **Enforce HTTPS** (una vez que pase el DNS check)
+### Actualización del sitio
 
-### Archivo CNAME
+1. Crear una rama desde `main`.
+2. Editar el contenido o los estilos existentes.
+3. Ejecutar `npm run verify:sites`.
+4. Crear un commit y hacer push a GitHub.
+5. Guardar en Sites una versión asociada al mismo SHA.
+6. Revisar la versión privada antes de desplegarla públicamente.
 
-El archivo `public/CNAME` contiene `redrys.org` y es necesario para que GitHub Pages sirva el sitio en el dominio custom. No eliminarlo.
+El identificador del proyecto de Sites se almacena en
+`.openai/hosting.json`. No deben guardarse allí credenciales, tokens ni valores
+DNS.
+
+### Dominio y rollback
+
+Los registros del dominio solo se cambian después de obtener de Sites los
+valores exactos y de aprobar la versión final. El procedimiento completo,
+baseline y rollback están documentados en
+[`docs/migracion-chatgpt-sites.md`](docs/migracion-chatgpt-sites.md).
 
 ## Paleta de colores
 
@@ -130,8 +147,9 @@ El archivo `public/CNAME` contiene `redrys.org` y es necesario para que GitHub P
 - CSS vanilla con custom properties (sin Tailwind)
 - Google Fonts (Instrument Serif + Inter)
 - Menú móvil CSS-only (sin JavaScript del lado del cliente)
-- GitHub Actions para deploy automático
-- Dominio custom via Cloudflare DNS → GitHub Pages
+- Worker ESM mínimo para servir la salida estática en ChatGPT Sites
+- GitHub como repositorio de código y respaldo
+- Dominio personalizado administrado desde Neubox
 
 ## SEO y Posicionamiento (Google)
 
