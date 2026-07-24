@@ -1,10 +1,18 @@
-import { copyFile, mkdir, readFile, rm } from 'node:fs/promises';
+import {
+  copyFile,
+  mkdir,
+  readFile,
+  readdir,
+  rename,
+  rm,
+} from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(scriptDirectory, '..');
 const distDirectory = resolve(projectRoot, 'dist');
+const clientDirectory = resolve(distDirectory, 'client');
 const serverDirectory = resolve(distDirectory, 'server');
 const distOpenAIDirectory = resolve(distDirectory, '.openai');
 const sourceHostingPath = resolve(projectRoot, '.openai', 'hosting.json');
@@ -22,10 +30,26 @@ if (unexpectedKeys.length > 0) {
 
 await rm(serverDirectory, { recursive: true, force: true });
 await rm(distOpenAIDirectory, { recursive: true, force: true });
+await rm(clientDirectory, { recursive: true, force: true });
+await mkdir(clientDirectory, { recursive: true });
+
+for (const entry of await readdir(distDirectory, { withFileTypes: true })) {
+  if (['client', 'server', '.openai'].includes(entry.name)) {
+    continue;
+  }
+
+  await rename(
+    resolve(distDirectory, entry.name),
+    resolve(clientDirectory, entry.name),
+  );
+}
+
 await mkdir(serverDirectory, { recursive: true });
 await mkdir(distOpenAIDirectory, { recursive: true });
 
 await copyFile(sourceWorkerPath, resolve(serverDirectory, 'index.js'));
 await copyFile(sourceHostingPath, resolve(distOpenAIDirectory, 'hosting.json'));
 
-console.log('Prepared dist/server/index.js and dist/.openai/hosting.json for Sites.');
+console.log(
+  'Prepared dist/client, dist/server/index.js and dist/.openai/hosting.json for Sites.',
+);

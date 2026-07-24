@@ -42,6 +42,8 @@ del sitio.
 
 - Código, historial y colaboración: este repositorio de GitHub.
 - Generador: Astro con HTML estático rastreable.
+- Empaquetado para Sites: la salida de Astro se conserva sin transformaciones
+  dentro de `dist/client`, junto al Worker ESM de `dist/server/index.js`.
 - Hosting público: ChatGPT Sites.
 - Dominio canónico: `https://redrys.org`.
 - DNS: administrado desde Neubox; los nameservers observados pertenecen a

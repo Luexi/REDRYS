@@ -16,7 +16,9 @@ const publicRoutes = [
 const routeFiles = new Map(
   publicRoutes.map((route) => [
     route,
-    route === '/' ? 'dist/index.html' : `dist${route}index.html`,
+    route === '/'
+      ? 'dist/client/index.html'
+      : `dist/client${route}index.html`,
   ]),
 );
 
@@ -104,7 +106,7 @@ assert.equal(
   'Every public route must have a unique title',
 );
 
-const robots = await readFile(resolve('dist/robots.txt'), 'utf8');
+const robots = await readFile(resolve('dist/client/robots.txt'), 'utf8');
 assert.match(robots, /User-agent:\s*\*/i);
 assert.match(robots, /Allow:\s*\//i);
 assert.match(
@@ -112,7 +114,7 @@ assert.match(
   /Sitemap:\s*https:\/\/redrys\.org\/sitemap-index\.xml/i,
 );
 
-const sitemap = await readFile(resolve('dist/sitemap-0.xml'), 'utf8');
+const sitemap = await readFile(resolve('dist/client/sitemap-0.xml'), 'utf8');
 const sitemapRoutes = [
   ...sitemap.matchAll(/<loc>https:\/\/redrys\.org([^<]*)<\/loc>/g),
 ]
@@ -120,7 +122,7 @@ const sitemapRoutes = [
   .sort();
 assert.deepEqual(sitemapRoutes, [...publicRoutes].sort());
 
-const notFoundHTML = await readFile(resolve('dist/404.html'), 'utf8');
+const notFoundHTML = await readFile(resolve('dist/client/404.html'), 'utf8');
 assert.equal(meta(notFoundHTML, 'name', 'robots'), 'noindex, nofollow');
 
 for (const asset of [
@@ -131,7 +133,7 @@ for (const asset of [
 ]) {
   assert.equal(
     await sha256(`public/${asset}`),
-    await sha256(`dist/${asset}`),
+    await sha256(`dist/client/${asset}`),
     `${asset} changed during the build`,
   );
 }
