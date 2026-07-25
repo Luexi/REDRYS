@@ -77,11 +77,12 @@ institucional. La procedencia, adaptaciones y aprobaciones se controlan en
 - `src/pages/` define las rutas públicas y la página 404, incluidas las rutas
   dinámicas `lineas-investigacion/[slug]`, `documentos/[slug]` e
   `integrantes/[slug]`.
-- `src/components/` contiene navegación, footer, breadcrumbs, títulos y tarjetas
-  reutilizables.
+- `src/components/` contiene navegación, footer, breadcrumbs, títulos, fichas de
+  integrante, el bloque de procedencia y el índice de documento.
 - `src/layouts/BaseLayout.astro` crea la estructura HTML común, metadata
   social, canonical, breadcrumbs y JSON-LD.
 - `src/lib/schema.ts` construye los nodos de datos estructurados.
+- `src/lib/reglamento.ts` deriva los anclajes de los artículos del reglamento.
 - `src/styles/global.css` contiene tokens, tipografía, responsive y estilos de
   componentes.
 
@@ -89,12 +90,68 @@ El sitio no usa React, Vue ni Svelte y **no envía JavaScript al navegador**. El
 menú móvil funciona con un checkbox y CSS; el checkbox se oculta visualmente sin
 `display: none` para que siga siendo alcanzable con el teclado.
 
+### Citas normativas resueltas en build
+
+Seis páginas citan artículos concretos del reglamento. Esas citas no se escriben
+a mano: `src/lib/reglamento.ts` lee los encabezados del Markdown publicado y
+devuelve el anclaje real de cada artículo.
+
+La consecuencia importante es que **una cita a un artículo inexistente rompe el
+build**. Si se reenumera o se retira un artículo del reglamento, la compilación
+falla en lugar de publicar un enlace que apunta a ninguna parte. El índice del
+documento se construye del mismo modo, así que tampoco hay una lista de
+secciones que mantener en paralelo al texto.
+
 ### Perfiles de integrante
 
 Una persona obtiene página propia solo si su registro en `integrantes.ts` tiene
 `slug`. Sin `slug` aparece en el directorio pero no genera ruta. Esto evita
 publicar perfiles vacíos y permite incorporar personas de una en una conforme se
 documenten y autoricen sus datos.
+
+### Sistema visual
+
+`src/styles/global.css` no es una hoja de estilos acumulada: es un sistema con
+cuatro reglas explícitas, y cada una responde a un defecto medido del diseño
+anterior.
+
+**Dos voces tipográficas con una regla.** La serif (Source Serif 4) compone el
+texto institucional: títulos y prosa transcrita del acta y del reglamento. La
+sans (Source Sans 3) compone el aparato que rodea a ese texto: navegación,
+etiquetas, metadatos y controles. La distinción es semántica, no decorativa, y
+permite decidir sin dudar qué familia usa un elemento nuevo.
+
+**Dos lenguajes de contenedor, no nueve.** `record` es una ficha que lleva a otra
+página: superficie, borde y toda su área clicable. `panel` agrupa datos que no
+llevan a ninguna parte. Todo lo demás (objetivos, comisiones, estructura, listas
+de términos) se separa con filetes y espacio. Antes existían nueve variantes de
+caja blanca con borde para nueve cosas distintas, de modo que ser una tarjeta
+había dejado de comunicar nada.
+
+**Escala de color opaca y verificada.** No hay grises por opacidad. La cabecera
+de `global.css` documenta el contraste medido de cada token contra los dos
+fondos del sitio. La escala anterior, construida con `rgba(13,47,54,α)`,
+reprobaba WCAG AA en once selectores, entre ellos las etiquetas de contacto, la
+adscripción de los integrantes, la procedencia y el pie completo.
+
+**El verde significa algo.** `--color-ratified` marca el contenido respaldado por
+un documento institucional y distingue una transcripción de una redacción
+editorial pendiente de ratificación. Es el mismo valor que el esquema Zod obliga
+a declarar en cada ficha; antes ese estado existía en los datos pero no llegaba
+a la pantalla, y el color solo pintaba dos ornamentos de 2 px.
+
+El sitio es de tema claro único. El modo oscuro no está implementado.
+
+#### La procedencia como estructura
+
+El bloque de procedencia y el estado de aprobación viven en la columna lateral
+de las páginas de línea, documento y perfil, junto al texto que describen. Antes
+se servían al final de la página, en gris, dentro de un borde punteado.
+
+Esa columna existía y estaba vacía: el contenido se limita a la medida de
+lectura y dejaba en torno al 40 % del ancho sin usar en escritorio. Ahora
+sostiene el aparato del documento: procedencia, estado de aprobación, fecha de
+revisión y, en el reglamento, el índice.
 
 ### Assets y documentos
 
@@ -104,10 +161,19 @@ anterior:
 
 - `public/images/`: logo e imagen de previsualización social.
 - `public/docs/`: acta constitutiva y reglamento.
+- `public/fonts/`: tipografías autoalojadas y sus licencias SIL OFL.
 - `public/robots.txt`: reglas de indexación del dominio canónico.
 - `public/CNAME`: configuración exclusiva de GitHub Pages durante la
   transición; `scripts/prepare-sites-build.mjs` la excluye del artefacto de
   Sites.
+
+Las tipografías se sirven desde el propio dominio. Antes venían de
+`fonts.googleapis.com`, en una cadena de tres saltos a un tercero que era la
+única dependencia externa del sitio y la causa medida de todo su layout shift.
+Los archivos `.woff2` se versionan en el repositorio a propósito: el sitio no
+debe depender de `node_modules` ni de un CDN para renderizar su texto. Los
+paquetes de `@fontsource-variable` viven en `devDependencies` y solo documentan
+la procedencia verificable de esos archivos; `npm run sync:fonts` los actualiza.
 
 La carpeta no debe contener originales privados, documentos sin autorización,
 credenciales ni archivos que no deban descargarse públicamente.
@@ -223,6 +289,10 @@ código: el mínimo de 200 palabras para que una ruta pueda ser indexable, y la
 lista de dominios externos permitidos, que impide reintroducir imágenes de
 stock o recursos de terceros sin advertirlo.
 
+`fonts.googleapis.com` y `fonts.gstatic.com` salieron de esa lista al autoalojar
+las tipografías. Reintroducir una hoja de estilos de Google Fonts ahora falla la
+verificación en lugar de pasar inadvertida.
+
 ## Comportamiento HTTP
 
 El Worker aplica estas reglas:
@@ -277,6 +347,23 @@ encuentran en validación. GitHub Pages es únicamente el respaldo temporal.
 Esta redundancia facilita el rollback, pero no significa que ambos sirvan el
 dominio al mismo tiempo. El proveedor activo lo determina el DNS y cualquier
 reversión debe seguir la bitácora de migración.
+
+### Tipografías versionadas en lugar de instaladas
+
+Los `.woff2` están en `public/fonts/` y en el historial de Git, aunque también
+existan en `node_modules`. Duplicar archivos binarios en un repositorio no es
+gratuito, pero la alternativa es peor: un sitio institucional público cuyo texto
+depende de que una instalación de npm reproduzca exactamente el mismo archivo.
+`npm run sync:fonts` mantiene el vínculo con la fuente verificable sin convertir
+`node_modules` en una dependencia de runtime.
+
+### Un solo tema claro
+
+No hay modo oscuro. Añadirlo obliga a decidir la paleta oscura de la marca, y
+esa decisión pertenece a la coordinación, no al responsable técnico. Los tokens
+están preparados para soportarlo (todo el color pasa por custom properties
+semánticas), pero declararlo antes de tener una paleta aprobada produciría un
+modo oscuro genérico que no representa a la red.
 
 ### PDFs como documentos independientes
 

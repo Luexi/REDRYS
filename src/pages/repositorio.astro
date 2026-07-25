@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
+import { articulosHref } from '../lib/reglamento';
 
 const base = import.meta.env.BASE_URL;
+const articulo = await articulosHref([13], base);
 ---
 
 <BaseLayout
@@ -13,18 +15,11 @@ const base = import.meta.env.BASE_URL;
 >
   <section class="page-section container">
     <SectionTitle
-      label="REDRYS"
       title="Repositorio académico"
       subtitle="Espacio destinado a la difusión de la producción académica generada por los integrantes de la red."
     />
 
     <div class="page-placeholder">
-      <div class="page-placeholder__icon" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        </svg>
-      </div>
       <h2 class="page-placeholder__title">Sección en preparación</h2>
       <p class="page-placeholder__text">
         La recopilación del catálogo de publicaciones, ponencias y materiales de la
@@ -38,17 +33,17 @@ const base = import.meta.env.BASE_URL;
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Política de acceso abierto</h2>
       <p class="content-block__text">
-        El Artículo 13 del <a href={`${base}documentos/reglamento/`}>reglamento de la
-        REDRYS</a> establece que los resultados de investigación deberán divulgarse en
-        acceso abierto, citando la afiliación a la REDRYS/UAGro. Este repositorio
-        existe para dar cumplimiento a esa disposición.
+        El <a href={articulo[13]}>Artículo 13 del reglamento de la REDRYS</a>
+        establece que los resultados de investigación deberán divulgarse en acceso
+        abierto, citando la afiliación a la REDRYS/UAGro. Este repositorio existe
+        para dar cumplimiento a esa disposición.
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Contenido previsto</h2>
       <ul class="feature-list">
         <li class="feature-list__item">

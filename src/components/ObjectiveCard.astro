@@ -1,4 +1,12 @@
 ---
+/**
+ * Objetivo específico del Artículo 2 del reglamento.
+ *
+ * La letra es el identificador que usa la norma (a, b, c, d), no un adorno: por
+ * eso se conserva. Lo que desaparece es la caja: un objetivo no lleva a ninguna
+ * parte, así que no necesita el lenguaje visual de una ficha enlazable.
+ */
+
 interface Props {
   letter: string;
   text: string;
@@ -8,6 +16,6 @@ const { letter, text } = Astro.props;
 ---
 
 <div class="objective-card">
-  <div class="objective-card__letter">{letter}</div>
+  <span class="objective-card__letter">Objetivo {letter}</span>
   <p class="objective-card__text">{text}</p>
 </div>

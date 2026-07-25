@@ -1,0 +1,33 @@
+---
+import type { EncabezadoReglamento } from '../lib/reglamento';
+
+/**
+ * Índice de un documento largo.
+ *
+ * Los `id` de cada encabezado ya los generaba Astro; lo que faltaba era usarlos.
+ * El índice se deriva del contenido, así que no hay que mantenerlo a mano
+ * cuando cambia el documento.
+ */
+
+interface Props {
+  headings: EncabezadoReglamento[];
+  label?: string;
+}
+
+const { headings, label = 'Índice del documento' } = Astro.props;
+---
+
+{headings.length > 0 && (
+  <nav class="toc" aria-labelledby="toc-title">
+    <h2 class="toc__title" id="toc-title">{label}</h2>
+    <ol class="toc__list">
+      {headings.map((heading) => (
+        <li
+          class={`toc__item ${heading.depth === 2 ? 'toc__item--chapter' : 'toc__item--article'}`}
+        >
+          <a class="toc__link" href={`#${heading.slug}`}>{heading.text}</a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}

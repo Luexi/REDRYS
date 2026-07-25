@@ -2,7 +2,9 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionTitle from '../../components/SectionTitle.astro';
+import Provenance from '../../components/Provenance.astro';
 import { site } from '../../data/site';
+import { articulosHref } from '../../lib/reglamento';
 
 export async function getStaticPaths() {
   const lineas = await getCollection('lineas');
@@ -22,6 +24,7 @@ const otrasLineas = (await getCollection('lineas'))
   .sort((a, b) => a.data.orden - b.data.orden);
 
 const actualizado = linea.data.actualizado.toISOString().slice(0, 10);
+const articulo = await articulosHref([1], base);
 ---
 
 <BaseLayout
@@ -41,63 +44,64 @@ const actualizado = linea.data.actualizado.toISOString().slice(0, 10);
       subtitle={linea.data.resumen}
     />
 
-    <div class="prose content-block">
-      <Content />
-    </div>
+    <div class="page-body">
+      <div class="page-body__main">
+        <div class="prose content-block">
+          <Content />
+        </div>
 
-    {linea.data.objetivosRelacionados.length > 0 && (
-      <div class="content-block">
-        <h2 class="content-block__title">Objetivos del reglamento asociados</h2>
-        <ul class="objective-list">
-          {linea.data.objetivosRelacionados.map((objetivo) => (
-            <li class="objective-list__item">{objetivo}</li>
-          ))}
-        </ul>
-        <p class="content-block__text">
-          El conjunto completo está en la página de
-          <a href={`${base}objetivos/`}>objetivos de la REDRYS</a>.
-        </p>
+        {linea.data.objetivosRelacionados.length > 0 && (
+          <div class="content-block content-block--group">
+            <h2 class="content-block__title">Objetivos del reglamento asociados</h2>
+            <ul class="objective-list">
+              {linea.data.objetivosRelacionados.map((objetivo) => (
+                <li class="objective-list__item">{objetivo}</li>
+              ))}
+            </ul>
+            <p class="content-block__text" style="margin-top: 1.5rem;">
+              El conjunto completo está en la página de
+              <a href={`${base}objetivos/`}>objetivos de la REDRYS</a>.
+            </p>
+          </div>
+        )}
+
+        <div class="content-block content-block--group">
+          <h2 class="content-block__title">Otras líneas de la red</h2>
+          <ul class="related-list">
+            {otrasLineas.map((otra) => (
+              <li class="related-list__item">
+                <a class="related-list__link" href={`${base}lineas-investigacion/${otra.id}/`}>
+                  {otra.data.titulo}
+                </a>
+                <span class="related-list__summary">{otra.data.resumen}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="content-block content-block--group">
+          <h2 class="content-block__title">Participar en esta línea</h2>
+          <p class="content-block__text">
+            La REDRYS recibe solicitudes de incorporación y propuestas de colaboración
+            de instituciones y especialistas externos. Consulta los requisitos en
+            <a href={`${base}colaborar/`}>Colaborar con la REDRYS</a> o escribe a
+            <a href={`mailto:${site.email}`}>{site.email}</a>.
+          </p>
+        </div>
       </div>
-    )}
 
-    <div class="content-block">
-      <h2 class="content-block__title">Otras líneas de la red</h2>
-      <ul class="related-list">
-        {otrasLineas.map((otra) => (
-          <li class="related-list__item">
-            <a class="related-list__link" href={`${base}lineas-investigacion/${otra.id}/`}>
-              {otra.data.titulo}
-            </a>
-            <span class="related-list__summary">{otra.data.resumen}</span>
-          </li>
-        ))}
-      </ul>
+      <div class="page-body__aside">
+        <Provenance estado={linea.data.aprobacion} actualizado={actualizado}>
+          <p class="provenance__text">{linea.data.fuente}</p>
+          {linea.data.aprobacion === 'editorial-pendiente-de-aprobacion' && (
+            <p class="provenance__text">
+              El nombre de la línea y las reglas de funcionamiento citadas proceden
+              del <a href={articulo[1]}>Artículo 1 del reglamento vigente</a>. El
+              desarrollo editorial de esta página está pendiente de ratificación.
+            </p>
+          )}
+        </Provenance>
+      </div>
     </div>
-
-    <div class="content-block">
-      <h2 class="content-block__title">Participar en esta línea</h2>
-      <p class="content-block__text">
-        La REDRYS recibe solicitudes de incorporación y propuestas de colaboración
-        de instituciones y especialistas externos. Consulta los requisitos en
-        <a href={`${base}colaborar/`}>Colaborar con la REDRYS</a> o escribe a
-        <a href={`mailto:${site.email}`}>{site.email}</a>.
-      </p>
-    </div>
-
-    <aside class="source-note">
-      <h2 class="source-note__title">Procedencia de este contenido</h2>
-      <p class="source-note__text">{linea.data.fuente}</p>
-      {linea.data.aprobacion === 'editorial-pendiente-de-aprobacion' && (
-        <p class="source-note__text">
-          El desarrollo editorial de esta página está pendiente de ratificación por
-          la coordinación de la REDRYS. Los nombres de las líneas y las reglas de
-          funcionamiento citadas proceden del
-          <a href={`${base}documentos/reglamento/`}>reglamento vigente</a>.
-        </p>
-      )}
-      <p class="source-note__meta">
-        Última actualización: <time datetime={actualizado}>{actualizado}</time>
-      </p>
-    </aside>
   </section>
 </BaseLayout>

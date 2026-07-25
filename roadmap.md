@@ -28,6 +28,28 @@ más de 9 000.
 | Menú móvil inoperable con teclado | Navegación operable con teclado |
 | Sitemap sin `lastmod` | Sitemap con `lastmod` y solo rutas indexables |
 
+Después se implementó el **sistema visual** (propuesta 2 de la auditoría de
+diseño), que reemplaza el lenguaje genérico anterior por uno derivado del
+argumento propio del sitio: la trazabilidad del contenido a sus fuentes.
+
+| Antes | Después |
+| --- | --- |
+| 11 selectores reprobaban WCAG AA; 17 nodos en Lighthouse | 0 fallos de contraste en 10 páginas medidas |
+| Lighthouse accesibilidad 96 | 100 |
+| CLS 0.033 escritorio / 0.042 móvil, por intercambio de webfonts | CLS 0.00 |
+| Instrument Serif + Inter desde `fonts.googleapis.com` | Source Serif 4 + Source Sans 3 autoalojadas |
+| 9 variantes de tarjeta blanca con borde | 2 lenguajes: ficha enlazable y dato agrupado |
+| Procedencia en gris, al final, en borde punteado | Columna lateral, junto al texto que describe |
+| `aprobacion` existía en los datos pero no en pantalla | Estado visible; `--color-ratified` distingue transcripción de redacción |
+| 6 citas por artículo apuntando a la cabecera del documento | Anclajes reales derivados en build; artículo inexistente rompe el build |
+| Reglamento a 125 caracteres por línea y sin índice | Medida de ~68 caracteres e índice de 22 entradas |
+| Hero recortado entre 768 y 1023 px | Sin desbordamiento entre 320 y 1440 px |
+| `.btn--ghost` renderizaba 171×26 px con `padding: 0` | Botón real con borde a 3.2:1 |
+| Documentos solo en el pie | En el menú principal |
+| Eyebrow literal «REDRYS» en 9 páginas | Retirado; el breadcrumb ya sitúa al lector |
+| Directorio sin orden, con «FCA» y «Miembro fundador» repetidos 42 veces | Orden alfabético, sin redundancia |
+| Pie con dos pseudo-estadísticas sin cifra | Fecha real de última revisión del contenido |
+
 ### Qué se construyó
 
 - **`/lineas-investigacion/`** con una página por línea. Contenido redactado a
@@ -90,11 +112,11 @@ REDRYS. Requiere confirmación.
 
 ### 4. Rendimiento
 
-- **Autohospedar las fuentes.** Google Fonts sigue siendo la única dependencia
-  externa bloqueante del render. Descargar Instrument Serif e Inter a
-  `public/fonts/` eliminaría dos `preconnect` y una hoja de estilos de terceros.
+- ~~**Autohospedar las fuentes.**~~ Hecho. Source Serif 4 y Source Sans 3 se
+  sirven desde `public/fonts/` con `preload`. El sitio ya no hace ninguna
+  petición externa y su CLS es 0.00.
 - **Optimizar el logotipo.** `logo-redrys-uagro.png` pesa 40 KB para mostrarse a
-  36×36 y 64×64.
+  34×34 y 48×48.
 
 ### 5. Galería
 
@@ -102,6 +124,26 @@ Cuando existan fotografías aprobadas con pie de foto, texto alternativo y
 permiso de uso, retirar `noindex` de `src/pages/galeria.astro` y quitar la ruta
 de `EXCLUDED_FROM_SITEMAP` en `astro.config.mjs` y de `NOINDEX_ROUTES` en
 `scripts/verify-sites-build.mjs`.
+
+### 6. Lo que el sistema visual dejó abierto
+
+El sistema visual resolvió el suelo de calidad y la identidad estructural, pero
+dos decisiones quedaron fuera **porque no son técnicas**:
+
+- **Fotografía institucional.** El sitio sigue sin una sola imagen propia más
+  allá del logotipo. Es el mayor salto de carácter que le queda, y depende de
+  material aprobado, no de código. Los tokens y la rejilla ya están preparados
+  para recibirlo; ver el punto 1 de esta misma fase.
+- **Modo oscuro.** No existe. Todo el color pasa por custom properties
+  semánticas, así que añadirlo es mecánico, pero exige que la coordinación
+  decida la paleta oscura de la marca. Declararla por cuenta propia produciría
+  un modo oscuro genérico que no representa a la red.
+
+Queda además una observación menor de redacción, no de diseño: en
+`/objetivos/`, el bloque «Cómo se concretan estos objetivos» se refiere a «el
+primer objetivo», «el segundo», «el tercer y el cuarto» sin reenunciarlos, lo
+que obliga a volver a las tarjetas. Reescribirlo es contenido editorial y
+requiere el circuito de aprobación habitual.
 
 ---
 

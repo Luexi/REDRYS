@@ -2,8 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import { site } from '../data/site';
+import { articulosHref } from '../lib/reglamento';
 
 const base = import.meta.env.BASE_URL;
+const articulo = await articulosHref([4, 5, 6, 7, 11], base);
 ---
 
 <BaseLayout
@@ -14,7 +16,6 @@ const base = import.meta.env.BASE_URL;
 >
   <section class="page-section container">
     <SectionTitle
-      label="REDRYS"
       title="Colaborar con la REDRYS"
       subtitle="La red está abierta a profesores-investigadores, estudiantes de posgrado y colaboradores externos. Los requisitos y el procedimiento están fijados en el reglamento."
     />
@@ -22,8 +23,8 @@ const base = import.meta.env.BASE_URL;
     <div class="content-block">
       <h2 class="content-block__title">Quién puede formar parte de la red</h2>
       <p class="content-block__text">
-        El Artículo 4 del <a href={`${base}documentos/reglamento/`}>reglamento</a>
-        reconoce tres tipos de miembros:
+        El <a href={articulo[4]}>Artículo 4 del reglamento</a> reconoce tres tipos de
+        miembros:
       </p>
       <ul class="feature-list">
         <li class="feature-list__item">
@@ -51,10 +52,11 @@ const base = import.meta.env.BASE_URL;
       </ul>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Requisitos de admisión</h2>
       <p class="content-block__text">
-        Conforme al Artículo 5 del reglamento, la incorporación requiere:
+        Conforme al <a href={articulo[5]}>Artículo 5 del reglamento</a>, la
+        incorporación requiere:
       </p>
       <ol class="ordered-list">
         <li class="ordered-list__item">
@@ -72,8 +74,11 @@ const base = import.meta.env.BASE_URL;
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Derechos de los integrantes</h2>
+      <p class="content-block__text">
+        Recogidos en el <a href={articulo[6]}>Artículo 6 del reglamento</a>:
+      </p>
       <ul class="feature-list feature-list--simple">
         <li class="feature-list__item">Participar en proyectos y actividades de la red.</li>
         <li class="feature-list__item">
@@ -84,8 +89,11 @@ const base = import.meta.env.BASE_URL;
       </ul>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Obligaciones de los integrantes</h2>
+      <p class="content-block__text">
+        Recogidas en el <a href={articulo[7]}>Artículo 7 del reglamento</a>:
+      </p>
       <ul class="feature-list feature-list--simple">
         <li class="feature-list__item">Asistir a las reuniones periódicas de la red.</li>
         <li class="feature-list__item">
@@ -95,13 +103,14 @@ const base = import.meta.env.BASE_URL;
           Cumplir con los principios éticos y de transparencia de la red.
         </li>
       </ul>
-      <p class="content-block__text">
+      <p class="content-block__text" style="margin-top: 1.5rem;">
         Las reuniones ordinarias son trimestrales y pueden convocarse reuniones
-        extraordinarias cuando el Comité Académico lo requiera.
+        extraordinarias cuando el Comité Académico lo requiera
+        (<a href={articulo[11]}>Artículo 11</a>).
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Vinculación institucional</h2>
       <p class="content-block__text">
         El segundo objetivo de la REDRYS es vincular la investigación con actores

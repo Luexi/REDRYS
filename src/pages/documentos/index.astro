@@ -24,32 +24,46 @@ const ultimaActualizacion = documentos
 >
   <section class="page-section container">
     <SectionTitle
-      label="REDRYS"
       title="Documentos fundacionales"
       subtitle="El acta de creación y el reglamento son las fuentes institucionales primarias de la red. Esta sección los presenta en formato consultable y accesible, además del archivo original."
     />
 
-    <ul class="document-index">
+    <ul class="record-grid">
       {documentos.map((documento) => (
-        <li class="document-index__item">
-          <article class="document-index__card">
-            <p class="document-index__type">{documento.data.tipo}</p>
-            <h2 class="document-index__title">
-              <a href={`${base}documentos/${documento.id}/`}>{documento.data.tituloCorto}</a>
+        <li>
+          <article class="record">
+            <p class="record__eyebrow">{documento.data.tipo}</p>
+            <h2 class="record__title">
+              <a class="record__link" href={`${base}documentos/${documento.id}/`}>
+                {documento.data.tituloCorto}
+              </a>
             </h2>
-            <p class="document-index__summary">{documento.data.resumen}</p>
-            <p class="document-index__meta">
+            <p class="record__summary">{documento.data.resumen}</p>
+            <p class="record__meta">
               {documento.data.textoIntegro
-                ? 'Texto íntegro disponible en HTML'
+                ? 'Texto íntegro en HTML'
                 : 'Resumen institucional en HTML'}
-              {documento.data.archivo && ` · PDF ${documento.data.archivoTamano}`}
             </p>
+            {documento.data.archivo && (
+              <p class="record__download">
+                <a
+                  class="document-link"
+                  href={`${base}${documento.data.archivo}`}
+                  type="application/pdf"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  Descargar PDF ({documento.data.archivoTamano})
+                </a>
+              </p>
+            )}
           </article>
         </li>
       ))}
     </ul>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Relación entre ambos documentos</h2>
       <p class="content-block__text">
         El acta de creación es el documento constitutivo: formaliza la existencia de

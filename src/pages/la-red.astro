@@ -4,9 +4,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import { site } from '../data/site';
 import { integrantes } from '../data/integrantes';
+import { articulosHref } from '../lib/reglamento';
 
 const base = import.meta.env.BASE_URL;
 const totalIntegrantes = integrantes.length;
+const articulo = await articulosHref([1, 4, 8, 9, 10], base);
 
 const lineas = (await getCollection('lineas')).sort(
   (a, b) => a.data.orden - b.data.orden,
@@ -43,7 +45,6 @@ const comisiones = [
 >
   <section class="page-section container">
     <SectionTitle
-      label="REDRYS"
       title="La Red de Educación para el Desarrollo Regional y Sostenible"
       subtitle="Espacio académico multidisciplinario de la Facultad de Contaduría y Administración de la Universidad Autónoma de Guerrero."
     />
@@ -51,7 +52,7 @@ const comisiones = [
     <div class="content-block">
       <h2 class="content-block__title">Naturaleza de la Red</h2>
       <p class="content-block__text">
-        El Artículo 1 del <a href={`${base}documentos/reglamento/`}>reglamento</a>
+        El <a href={articulo[1]}>Artículo 1 del reglamento</a>
         define a la REDRYS como un espacio académico multidisciplinario integrado por
         profesores-investigadores y estudiantes de posgrado de la {site.faculty} de
         la {site.institution}, cuyo fin es promover la investigación aplicada con
@@ -77,32 +78,37 @@ const comisiones = [
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Líneas de investigación</h2>
       <p class="content-block__text">
         La REDRYS cultiva tres líneas principales de investigación e incidencia
         social. Cada una cuenta con una página propia donde se describe su objeto de
         estudio, su relevancia para Guerrero y su forma de trabajo.
       </p>
-      <ul class="cards-grid" style="margin-top: 1.5rem;">
+      <ul class="record-grid record-grid--3">
         {lineas.map((linea) => (
           <li>
-            <article class="line-card">
-              <div class="line-card__icon" aria-hidden="true"></div>
-              <h3 class="line-card__title">
-                <a href={`${base}lineas-investigacion/${linea.id}/`}>{linea.data.titulo}</a>
+            <article class="record">
+              <p class="record__eyebrow">
+                Línea {String(linea.data.orden).padStart(2, '0')}
+              </p>
+              <h3 class="record__title">
+                <a class="record__link" href={`${base}lineas-investigacion/${linea.id}/`}>
+                  {linea.data.titulo}
+                </a>
               </h3>
-              <p class="line-card__description">{linea.data.resumen}</p>
+              <p class="record__summary">{linea.data.resumen}</p>
             </article>
           </li>
         ))}
       </ul>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Tipos de integrantes</h2>
       <p class="content-block__text">
-        El Artículo 4 del reglamento reconoce tres tipos de miembros:
+        El <a href={articulo[4]}>Artículo 4 del reglamento</a> reconoce tres tipos de
+        miembros:
         profesores-investigadores de la UAGro con líneas de investigación afines,
         estudiantes de posgrado con proyectos alineados a los objetivos de la red, y
         colaboradores externos —instituciones o especialistas invitados— aprobados por
@@ -112,7 +118,7 @@ const comisiones = [
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Estructura organizativa</h2>
       <div class="structure-grid">
         <article class="structure-item">
@@ -120,7 +126,8 @@ const comisiones = [
           <p class="structure-item__text">
             Integrado por 5 miembros: 3 profesores-investigadores y 2 estudiantes de
             posgrado. Aprueba proyectos, admite nuevos integrantes y supervisa el
-            cumplimiento de los objetivos de la red.
+            cumplimiento de los objetivos de la red
+            (<a href={articulo[8]}>Artículo 8</a>).
           </p>
         </article>
         <article class="structure-item">
@@ -128,22 +135,24 @@ const comisiones = [
           <p class="structure-item__text">
             Elegido cada 2 años mediante votación. Representa legalmente a la red y
             convoca las reuniones, que son ordinarias de manera trimestral y
-            extraordinarias cuando el Comité lo requiere.
+            extraordinarias cuando el Comité lo requiere
+            (<a href={articulo[9]}>Artículo 9</a>).
           </p>
         </article>
       </div>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Comisiones de trabajo</h2>
+      <p class="content-block__text">
+        El <a href={articulo[10]}>Artículo 10 del reglamento</a> establece cuatro
+        comisiones permanentes:
+      </p>
       <ul class="commission-list">
         {comisiones.map((comision) => (
           <li class="commission-item">
-            <span class="commission-item__marker" aria-hidden="true"></span>
-            <span class="commission-item__body">
-              <span class="commission-item__name">{comision.nombre}</span>
-              <span class="commission-item__description">{comision.descripcion}</span>
-            </span>
+            <span class="commission-item__name">{comision.nombre}</span>
+            <span class="commission-item__description">{comision.descripcion}</span>
           </li>
         ))}
       </ul>

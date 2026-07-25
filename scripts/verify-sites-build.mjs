@@ -14,10 +14,15 @@ const NOINDEX_ROUTES = new Set(['/galeria/', '/repositorio/']);
 /** Mínimo de palabras dentro de <main> exigible a una ruta indexable. */
 const MIN_WORDS_INDEXABLE = 200;
 
-/** Dominios externos permitidos en el HTML publicado. */
+/**
+ * Dominios externos permitidos en el HTML publicado.
+ *
+ * `fonts.googleapis.com` y `fonts.gstatic.com` salieron de esta lista al
+ * autoalojar las tipografías: eran la única dependencia de terceros del sitio y
+ * la causa medida del layout shift de la portada. Mantenerlos fuera hace que
+ * reintroducirlos falle la verificación en lugar de pasar inadvertido.
+ */
 const ALLOWED_EXTERNAL_HOSTS = new Set([
-  'fonts.googleapis.com',
-  'fonts.gstatic.com',
   'schema.org',
   'www.w3.org',
   'redrys.org',
@@ -286,6 +291,9 @@ for (const asset of [
   'images/screen.png',
   'docs/acta-creacion-redrys.pdf',
   'docs/reglamento-redrys.pdf',
+  'fonts/source-serif-4-latin-wght-normal.woff2',
+  'fonts/source-sans-3-latin-wght-normal.woff2',
+  'fonts/source-sans-3-latin-wght-italic.woff2',
 ]) {
   assert.equal(
     await sha256(`public/${asset}`),

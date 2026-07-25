@@ -1,23 +1,41 @@
 ---
+/**
+ * Ficha de integrante en el directorio.
+ *
+ * `role` y `dependency` solo se pintan cuando aportan información. Antes cada
+ * ficha repetía "FCA" y "MIEMBRO FUNDADOR" bajo un encabezado que ya decía
+ * "Facultad de Contaduría y Administración": 42 tokens redundantes que el ojo
+ * tenía que filtrar para llegar a 22 nombres.
+ */
+
 interface Props {
   name: string;
-  dependency: string;
   role: string;
+  /** Cargo que comparten casi todos y que, por tanto, no distingue a nadie. */
+  defaultRole?: string;
   grado?: string;
   slug?: string;
 }
 
-const { name, dependency, role, grado, slug } = Astro.props;
+const {
+  name,
+  role,
+  defaultRole = 'Miembro fundador',
+  grado,
+  slug,
+} = Astro.props;
+
 const base = import.meta.env.BASE_URL;
 
 const initials = name
   .split(' ')
-  .filter((_, i, arr) => i === 0 || i === arr.length - 1)
-  .map((w) => w.charAt(0).toUpperCase())
+  .filter((_, index, all) => index === 0 || index === all.length - 1)
+  .map((word) => word.charAt(0).toUpperCase())
   .join('');
 
 const displayName = grado ? `${grado} ${name}` : name;
 const href = slug ? `${base}integrantes/${slug}/` : null;
+const meta = role === defaultRole ? null : role;
 ---
 
 <article class="member-card">
@@ -26,7 +44,6 @@ const href = slug ? `${base}integrantes/${slug}/` : null;
     <h3 class="member-card__name">
       {href ? <a href={href}>{displayName}</a> : displayName}
     </h3>
-    <p class="member-card__dep">{dependency}</p>
-    <p class="member-card__role">{role}</p>
+    {meta && <p class="member-card__meta">{meta}</p>}
   </div>
 </article>

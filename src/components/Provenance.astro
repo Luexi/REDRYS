@@ -1,0 +1,76 @@
+---
+/**
+ * Procedencia y estado de aprobación de una página.
+ *
+ * Es el argumento propio de este sitio: cada contenido declara de dónde sale y
+ * con qué autoridad. Por eso vive en la columna lateral, junto al texto que
+ * describe, y no como nota al pie al final de la página.
+ *
+ * `estado` es el mismo valor que el esquema Zod de las Content Collections
+ * obliga a declarar en cada ficha. Aquí llega a la pantalla: es el único uso del
+ * verde en todo el sistema visual.
+ */
+
+type Estado =
+  | 'documento-institucional'
+  | 'editorial-aprobada'
+  | 'editorial-pendiente-de-aprobacion';
+
+interface Props {
+  title?: string;
+  estado?: Estado;
+  actualizado?: string;
+}
+
+const {
+  title = 'Procedencia de este contenido',
+  estado,
+  actualizado,
+} = Astro.props;
+
+const ETIQUETAS: Record<Estado, { texto: string; ratificado: boolean }> = {
+  'documento-institucional': {
+    texto: 'Transcripción de un documento institucional',
+    ratificado: true,
+  },
+  'editorial-aprobada': {
+    texto: 'Redacción aprobada por la coordinación',
+    ratificado: true,
+  },
+  'editorial-pendiente-de-aprobacion': {
+    texto: 'Redacción pendiente de ratificación',
+    ratificado: false,
+  },
+};
+
+const etiqueta = estado ? ETIQUETAS[estado] : null;
+
+const actualizadoLegible = actualizado
+  ? new Date(`${actualizado}T00:00:00Z`).toLocaleDateString('es-MX', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    })
+  : null;
+---
+
+<aside class="provenance">
+  <h2 class="provenance__title">{title}</h2>
+
+  {etiqueta && (
+    <p
+      class={`approval ${etiqueta.ratificado ? 'approval--ratified' : 'approval--pending'}`}
+    >
+      {etiqueta.texto}
+    </p>
+  )}
+
+  <slot />
+
+  {actualizado && (
+    <p class="provenance__meta">
+      Última revisión: <time datetime={actualizado}>{actualizadoLegible}</time>
+    </p>
+  )}
+</aside>

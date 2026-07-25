@@ -39,7 +39,7 @@ artefacto de ChatGPT Sites y valida rutas, SEO, datos estructurados, sitemap,
 
 | Necesidad | Documento |
 | --- | --- |
-| Entender el diseño técnico, el Worker, Sites y el respaldo temporal | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
+| Entender el diseño técnico, el sistema visual, el Worker y Sites | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | Actualizar contenido, archivos o estilos y publicar de forma segura | [`MANTENIMIENTO.md`](MANTENIMIENTO.md) |
 | Consultar la procedencia del contenido y las decisiones pendientes | [`docs/FUENTES-Y-PENDIENTES.md`](docs/FUENTES-Y-PENDIENTES.md) |
 | Saber qué sigue y bajo qué condiciones | [`roadmap.md`](roadmap.md) |
@@ -78,17 +78,20 @@ REDRYS/
 │   └── migracion-chatgpt-sites.md   # Baseline, corte y rollback
 ├── public/
 │   ├── docs/                        # Acta y reglamento públicos
+│   ├── fonts/                       # Tipografías autoalojadas y licencias OFL
 │   └── images/                      # Logo e imagen social
 ├── scripts/
 │   ├── prepare-sites-build.mjs      # Empaqueta Astro para Sites
+│   ├── sync-fonts.mjs               # Actualiza public/fonts/ desde devDependencies
 │   └── verify-sites-build.mjs       # Verifica el artefacto final
 ├── sites/worker.mjs                 # Worker de entrega para ChatGPT Sites
 ├── src/
-│   ├── components/                  # Header, footer, breadcrumbs y tarjetas
+│   ├── components/                  # Header, footer, breadcrumbs, fichas, procedencia, índice
 │   ├── content/                     # Colecciones de líneas y documentos (Markdown)
 │   ├── content.config.ts            # Esquemas Zod de las colecciones
 │   ├── data/                        # Contenido institucional centralizado
 │   ├── layouts/BaseLayout.astro     # HTML base, metadata y JSON-LD
+│   ├── lib/reglamento.ts            # Anclajes de los artículos del reglamento
 │   ├── lib/schema.ts                # Constructores del grafo de datos estructurados
 │   ├── pages/                       # Rutas públicas y página 404
 │   └── styles/global.css            # Sistema visual
@@ -115,6 +118,7 @@ del contenido que se edita manualmente.
 | Documentos fundacionales | `src/content/documentos/*.md` |
 | Fecha `lastmod` del sitemap | `astro.config.mjs` |
 | Colores, tipografía y estilos | `src/styles/global.css` |
+| Archivos de tipografía | `public/fonts/` (`npm run sync:fonts`) |
 | Acta y reglamento descargables | `public/docs/` |
 
 Los pasos completos y las aprobaciones necesarias están en
@@ -128,7 +132,10 @@ confirmación de la coordinación de REDRYS.
 - Astro 5 con salida estática.
 - Content Collections con validación Zod para líneas y documentos.
 - TypeScript para datos de contenido.
-- CSS vanilla con custom properties.
+- CSS vanilla con custom properties y contrastes WCAG AA verificados.
+- Tipografías autoalojadas: Source Serif 4 para el texto institucional y
+  Source Sans 3 para el aparato (navegación, etiquetas, metadatos). SIL OFL 1.1.
+- **Cero recursos externos**: ninguna petición sale del dominio.
 - **Cero JavaScript del lado del cliente**; el menú móvil es CSS.
 - `@astrojs/sitemap` con `lastmod` y filtrado de rutas sin contenido.
 - Metadata canonical, Open Graph, Twitter Cards y JSON-LD en grafo:

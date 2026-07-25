@@ -1,10 +1,40 @@
 ---
+import { getCollection } from 'astro:content';
 import { site, footerLinks } from '../data/site';
 
 const base = import.meta.env.BASE_URL;
+
 function url(path: string) {
   return `${base}${path === '/' ? '' : path.slice(1)}`;
 }
+
+/**
+ * Fecha real de la última revisión del contenido publicado.
+ *
+ * Sustituye a dos pseudo-estadísticas sin cifra ("Investigación / Líneas de
+ * aplicación") que ocupaban este hueco. El sitio ya declaraba la procedencia
+ * ficha a ficha, pero no había un solo lugar donde consultar cuándo se revisó
+ * por última vez el conjunto, que es lo primero que comprueba quien evalúa el
+ * expediente de la red.
+ */
+const fichas = [
+  ...(await getCollection('lineas')),
+  ...(await getCollection('documentos')),
+];
+
+const ultimaRevision = fichas
+  .map((ficha) => ficha.data.actualizado.toISOString().slice(0, 10))
+  .sort()
+  .at(-1);
+
+const ultimaRevisionLegible = ultimaRevision
+  ? new Date(`${ultimaRevision}T00:00:00Z`).toLocaleDateString('es-MX', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    })
+  : null;
 ---
 
 <footer class="site-footer container">
@@ -19,20 +49,14 @@ function url(path: string) {
       </span>
     </div>
 
-    <div class="site-footer__stats">
-      <div>
-        <span class="site-footer__stat-title">Investigación</span>
-        <span class="site-footer__stat-label">Líneas de aplicación</span>
+    {ultimaRevision && (
+      <div class="site-footer__revision">
+        <span class="site-footer__revision-label">Última revisión del contenido</span>
+        <span class="site-footer__revision-value">
+          <time datetime={ultimaRevision}>{ultimaRevisionLegible}</time>
+        </span>
       </div>
-      <div>
-        <span class="site-footer__stat-title">Vinculación</span>
-        <span class="site-footer__stat-label">Impacto regional</span>
-      </div>
-    </div>
-
-    <p class="site-footer__tagline">
-      &ldquo;{site.tagline}&rdquo;
-    </p>
+    )}
   </div>
 
   <nav class="site-footer__links" aria-label="Navegación del pie de página">

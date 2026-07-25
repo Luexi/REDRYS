@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../data/site';
 import { integrantes } from '../data/integrantes';
+import { articulosHref } from '../lib/reglamento';
 
 const base = import.meta.env.BASE_URL;
 const totalIntegrantes = integrantes.length;
@@ -10,6 +11,8 @@ const totalIntegrantes = integrantes.length;
 const lineas = (await getCollection('lineas')).sort(
   (a, b) => a.data.orden - b.data.orden,
 );
+
+const articulo = await articulosHref([12, 13], base);
 ---
 
 <BaseLayout
@@ -20,10 +23,9 @@ const lineas = (await getCollection('lineas')).sort(
   <section class="hero container">
     <div class="hero__grid">
       <div class="hero__content">
-        <div class="hero__eyebrow">
-          <span class="hero__eyebrow-line"></span>
-          <span class="hero__eyebrow-text">REDRYS · Red de investigación y formación</span>
-        </div>
+        <p class="hero__eyebrow">
+          {site.facultyShort} · {site.institution} · {site.addressLocality}
+        </p>
 
         <h1 class="hero__headline">
           REDRYS: red académica de la UAGro para el desarrollo regional y sostenible
@@ -40,52 +42,40 @@ const lineas = (await getCollection('lineas')).sort(
 
         <div class="hero__cta-row">
           <a class="btn btn--primary" href={`${base}la-red/`}>Conoce la red</a>
-          <a class="btn btn--ghost" href={`${base}lineas-investigacion/`}>
-            Líneas de investigación
+          <a class="btn btn--ghost" href={`${base}documentos/`}>
+            Documentos fundacionales
           </a>
         </div>
-
-        <p class="hero__attribution">
-          <span class="hero__attribution-label">Adscripción</span>
-          <span class="hero__attribution-value">
-            {site.faculty} · {site.institution} · Acapulco, Guerrero
-          </span>
-        </p>
       </div>
 
-      <div class="hero__editorial">
-        <div class="academic-card hero__academic-card">
-          <img
-            src={`${base}images/logo-redrys-uagro.png`}
-            alt="Logotipo de la REDRYS y la Universidad Autónoma de Guerrero"
-            class="card-logo"
-            width="64"
-            height="64"
-          />
-          <p class="card-title">Red académica multidisciplinaria</p>
-          <div class="thin-rule" style="margin-top: 1rem;"></div>
+      <div class="panel hero__panel">
+        <img
+          src={`${base}images/logo-redrys-uagro.png`}
+          alt="Logotipo de la REDRYS y la Universidad Autónoma de Guerrero"
+          class="card-logo"
+          width="64"
+          height="64"
+        />
+        <p class="card-title">Red académica multidisciplinaria</p>
 
-          <dl class="hero__facts">
-            <div class="hero__fact">
-              <dt class="hero__fact-label">Constituida</dt>
-              <dd class="hero__fact-value">28 de octubre de 2024</dd>
-            </div>
-            <div class="hero__fact">
-              <dt class="hero__fact-label">Miembros fundadores</dt>
-              <dd class="hero__fact-value">{totalIntegrantes}</dd>
-            </div>
-            <div class="hero__fact">
-              <dt class="hero__fact-label">Líneas de investigación</dt>
-              <dd class="hero__fact-value">{lineas.length}</dd>
-            </div>
-            <div class="hero__fact">
-              <dt class="hero__fact-label">Sede</dt>
-              <dd class="hero__fact-value">Edificio de Posgrado, FCA-UAGro</dd>
-            </div>
-          </dl>
-        </div>
-
-        <div class="hero__decorative-corner"></div>
+        <dl class="hero__facts">
+          <div class="hero__fact">
+            <dt class="hero__fact-label">Constituida</dt>
+            <dd class="hero__fact-value">28 de octubre de 2024</dd>
+          </div>
+          <div class="hero__fact">
+            <dt class="hero__fact-label">Miembros fundadores</dt>
+            <dd class="hero__fact-value">{totalIntegrantes}</dd>
+          </div>
+          <div class="hero__fact">
+            <dt class="hero__fact-label">Líneas de investigación</dt>
+            <dd class="hero__fact-value">{lineas.length}</dd>
+          </div>
+          <div class="hero__fact">
+            <dt class="hero__fact-label">Sede</dt>
+            <dd class="hero__fact-value">Edificio de Posgrado, FCA-UAGro</dd>
+          </div>
+        </dl>
       </div>
     </div>
   </section>
@@ -111,28 +101,32 @@ const lineas = (await getCollection('lineas')).sort(
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Líneas de investigación</h2>
       <p class="content-block__text">
         Cada línea organiza proyectos, formación de investigadores y difusión de
         resultados dentro de la red.
       </p>
-      <ul class="cards-grid" style="margin-top: 1.5rem;">
+      <ul class="record-grid record-grid--3">
         {lineas.map((linea) => (
           <li>
-            <article class="line-card">
-              <div class="line-card__icon" aria-hidden="true"></div>
-              <h3 class="line-card__title">
-                <a href={`${base}lineas-investigacion/${linea.id}/`}>{linea.data.titulo}</a>
+            <article class="record">
+              <p class="record__eyebrow">
+                Línea {String(linea.data.orden).padStart(2, '0')}
+              </p>
+              <h3 class="record__title">
+                <a class="record__link" href={`${base}lineas-investigacion/${linea.id}/`}>
+                  {linea.data.titulo}
+                </a>
               </h3>
-              <p class="line-card__description">{linea.data.resumen}</p>
+              <p class="record__summary">{linea.data.resumen}</p>
             </article>
           </li>
         ))}
       </ul>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Cómo trabaja la red</h2>
       <p class="content-block__text">
         El reglamento de la REDRYS fija tres condiciones que ordenan toda su
@@ -143,7 +137,8 @@ const lineas = (await getCollection('lineas')).sort(
           <span class="feature-list__term">Formación en el proceso</span>
           <span class="feature-list__text">
             Todo proyecto integra al menos un profesor-investigador y dos estudiantes
-            de posgrado.
+            de posgrado, conforme al
+            <a href={articulo[12]}>Artículo 12</a>.
           </span>
         </li>
         <li class="feature-list__item">
@@ -156,11 +151,11 @@ const lineas = (await getCollection('lineas')).sort(
           <span class="feature-list__term">Acceso abierto</span>
           <span class="feature-list__text">
             Los resultados se divulgan en acceso abierto citando la afiliación
-            REDRYS/UAGro.
+            REDRYS/UAGro, según el <a href={articulo[13]}>Artículo 13</a>.
           </span>
         </li>
       </ul>
-      <p class="content-block__text">
+      <p class="content-block__text" style="margin-top: 1.5rem;">
         La red se organiza mediante un Comité Académico de cinco miembros y cuatro
         comisiones de trabajo: investigación, vinculación, difusión y formación.
         Consulta la <a href={`${base}la-red/`}>estructura completa de la red</a> o el
@@ -168,7 +163,7 @@ const lineas = (await getCollection('lineas')).sort(
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Explorar el sitio</h2>
       <ul class="related-list">
         <li class="related-list__item">

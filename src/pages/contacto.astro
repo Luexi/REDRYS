@@ -2,8 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import { site } from '../data/site';
+import { articulosHref } from '../lib/reglamento';
 
 const base = import.meta.env.BASE_URL;
+const articulo = await articulosHref([3, 5], base);
 ---
 
 <BaseLayout
@@ -14,7 +16,6 @@ const base = import.meta.env.BASE_URL;
 >
   <section class="page-section container">
     <SectionTitle
-      label="Contacto"
       title="Contacto con la REDRYS"
       subtitle="Para consultas académicas, propuestas de colaboración institucional o solicitudes de incorporación a la red."
     />
@@ -41,41 +42,15 @@ const base = import.meta.env.BASE_URL;
           <dd class="contact-item__value">{site.coordinator}</dd>
         </div>
       </dl>
-    </div>
 
-    <div class="content-block">
-      <h2 class="content-block__title">Sede</h2>
-      <address class="contact-address">
-        {site.address}<br />
-        {site.streetAddress}<br />
-        C.P. {site.postalCode}, {site.city}<br />
-        México
-      </address>
-      <p class="content-block__text">
-        La sede de la red coincide con la de la {site.faculty} de la
-        {' '}{site.institution}, conforme al Artículo 3 de su
-        <a href={`${base}documentos/reglamento/`}>reglamento</a>.
+      <p style="margin-top: 2rem;">
+        <a class="btn btn--primary" href={`mailto:${site.email}`}>
+          Escribir un correo
+        </a>
       </p>
     </div>
 
-    <div class="content-block">
-      <a class="btn btn--primary" href={`mailto:${site.email}`}>
-        Escribir un correo
-      </a>
-    </div>
-
-    <div class="content-block">
-      <h2 class="content-block__title">Incorporarse a la red</h2>
-      <p class="content-block__text">
-        Las solicitudes de incorporación deben incluir currículum vitae y carta de
-        intención, y serán evaluadas por el Comité Académico conforme al reglamento
-        vigente. Los requisitos completos, los derechos y las obligaciones de los
-        integrantes están en la página
-        <a href={`${base}colaborar/`}>Colaborar con la REDRYS</a>.
-      </p>
-    </div>
-
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Qué incluir en tu mensaje</h2>
       <p class="content-block__text">
         Para que la coordinación pueda canalizar tu mensaje a la comisión
@@ -95,12 +70,38 @@ const base = import.meta.env.BASE_URL;
         </li>
         <li class="feature-list__item">
           En solicitudes de incorporación, currículum vitae y carta de intención, tal
-          como exige el Artículo 5 del reglamento.
+          como exige el <a href={articulo[5]}>Artículo 5 del reglamento</a>.
         </li>
       </ul>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
+      <h2 class="content-block__title">Sede</h2>
+      <address class="contact-address">
+        {site.address}<br />
+        {site.streetAddress}<br />
+        C.P. {site.postalCode}, {site.city}<br />
+        México
+      </address>
+      <p class="content-block__text">
+        La sede de la red coincide con la de la {site.faculty} de la
+        {' '}{site.institution}, conforme al
+        <a href={articulo[3]}>Artículo 3 de su reglamento</a>.
+      </p>
+    </div>
+
+    <div class="content-block content-block--group">
+      <h2 class="content-block__title">Incorporarse a la red</h2>
+      <p class="content-block__text">
+        Las solicitudes de incorporación deben incluir currículum vitae y carta de
+        intención, y serán evaluadas por el Comité Académico conforme al reglamento
+        vigente. Los requisitos completos, los derechos y las obligaciones de los
+        integrantes están en la página
+        <a href={`${base}colaborar/`}>Colaborar con la REDRYS</a>.
+      </p>
+    </div>
+
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Propuestas de vinculación</h2>
       <p class="content-block__text">
         Dependencias públicas, organizaciones sociales y empresas pueden proponer

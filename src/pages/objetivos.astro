@@ -3,8 +3,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import ObjectiveCard from '../components/ObjectiveCard.astro';
 import { objetivoGeneral, objetivosEspecificos } from '../data/objetivos';
+import { articulosHref } from '../lib/reglamento';
 
 const base = import.meta.env.BASE_URL;
+const articulo = await articulosHref([2], base);
 ---
 
 <BaseLayout
@@ -15,7 +17,6 @@ const base = import.meta.env.BASE_URL;
 >
   <section class="page-section container">
     <SectionTitle
-      label="REDRYS"
       title="Objetivos de la Red"
       subtitle="Los objetivos de la red proceden de su acta constitutiva y de su reglamento, y orientan todas sus actividades de investigación, vinculación, difusión y formación."
     />
@@ -34,13 +35,13 @@ const base = import.meta.env.BASE_URL;
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Objetivos específicos</h2>
       <p class="content-block__text">
-        El Artículo 2 del <a href={`${base}documentos/reglamento/`}>reglamento</a>
-        establece cuatro objetivos específicos:
+        El <a href={articulo[2]}>Artículo 2 del reglamento</a> establece cuatro
+        objetivos específicos:
       </p>
-      <ul class="cards-grid" style="margin-top: 1.5rem;">
+      <ul class="cards-grid">
         {objetivosEspecificos.map((obj) => (
           <li>
             <ObjectiveCard letter={obj.letter} text={obj.text} />
@@ -49,7 +50,7 @@ const base = import.meta.env.BASE_URL;
       </ul>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Cómo se concretan estos objetivos</h2>
       <p class="content-block__text">
         Los objetivos se desarrollan a través de las tres

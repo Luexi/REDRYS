@@ -105,12 +105,25 @@ const jsonLd = buildGraph([
     <meta name="twitter:image" content={absoluteOgImage} />
     <meta name="twitter:image:alt" content={`${site.name} — ${site.fullName}`} />
 
-    <!-- Conexiones rápidas de Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Tipografías autoalojadas. Se precargan las dos familias que componen la
+      primera pantalla para que el texto no cambie de métrica después de pintar:
+      el layout shift medido antes procedía íntegramente del intercambio de
+      webfonts servidas por `fonts.gstatic.com`.
+    -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href={`${import.meta.env.BASE_URL}fonts/source-serif-4-latin-wght-normal.woff2`}
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href={`${import.meta.env.BASE_URL}fonts/source-sans-3-latin-wght-normal.woff2`}
+      crossorigin
     />
 
     <!-- Datos estructurados Schema.org (JSON-LD) -->
@@ -118,7 +131,6 @@ const jsonLd = buildGraph([
   </head>
   <body>
     <a href="#main-content" class="skip-link">Ir al contenido principal</a>
-    <div class="bg-arc"></div>
     <Header />
     <main id="main-content">
       {breadcrumbs?.length ? (

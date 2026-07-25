@@ -2,6 +2,8 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionTitle from '../../components/SectionTitle.astro';
+import Provenance from '../../components/Provenance.astro';
+import DocumentToc from '../../components/DocumentToc.astro';
 import { ORGANIZATION_ID } from '../../lib/schema';
 
 export async function getStaticPaths() {
@@ -14,12 +16,20 @@ export async function getStaticPaths() {
 }
 
 const { documento } = Astro.props;
-const { Content } = await render(documento);
+const { Content, headings } = await render(documento);
 const base = import.meta.env.BASE_URL;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const actualizado = documento.data.actualizado.toISOString().slice(0, 10);
 const fecha = documento.data.fecha?.toISOString().slice(0, 10);
+
+/**
+ * Índice del documento. Astro ya generaba un `id` para cada encabezado; hasta
+ * ahora ninguna página los usaba y el texto íntegro se recorría a ciegas.
+ */
+const indice = headings.filter(
+  (heading) => heading.depth === 2 || heading.depth === 3,
+);
 
 /**
  * `DigitalDocument` describe un documento institucional real que existe y está
@@ -66,31 +76,43 @@ const documentNode = {
       subtitle={documento.data.resumen}
     />
 
-    {documento.data.archivo && (
-      <div class="content-block">
-        <a
-          class="document-link"
-          href={`${base}${documento.data.archivo}`}
-          type="application/pdf"
-          target="_blank"
-          rel="noopener"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Descargar el documento original (PDF, {documento.data.archivoTamano})
-        </a>
+    <div class="page-body">
+      <div class="page-body__main">
+        {documento.data.archivo && (
+          <div class="content-block">
+            <a
+              class="document-link"
+              href={`${base}${documento.data.archivo}`}
+              type="application/pdf"
+              target="_blank"
+              rel="noopener"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Descargar el documento original (PDF, {documento.data.archivoTamano}, se abre en una pestaña nueva)
+            </a>
+          </div>
+        )}
+
+        <div class="prose">
+          <Content />
+        </div>
       </div>
-    )}
 
-    <div class="prose content-block">
-      <Content />
+      <div class="page-body__aside">
+        <Provenance
+          estado={documento.data.aprobacion}
+          actualizado={actualizado}
+        >
+          <p class="provenance__text">{documento.data.fuente}</p>
+          <p class="provenance__text">
+            {documento.data.textoIntegro
+              ? 'Esta página reproduce el texto íntegro del documento.'
+              : 'Esta página resume los datos institucionales del documento; el archivo original es la fuente completa.'}
+          </p>
+        </Provenance>
+
+        <DocumentToc headings={indice} />
+      </div>
     </div>
-
-    <aside class="source-note">
-      <h2 class="source-note__title">Procedencia de este contenido</h2>
-      <p class="source-note__text">{documento.data.fuente}</p>
-      <p class="source-note__meta">
-        Última actualización: <time datetime={actualizado}>{actualizado}</time>
-      </p>
-    </aside>
   </section>
 </BaseLayout>

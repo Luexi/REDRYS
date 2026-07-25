@@ -1,4 +1,13 @@
 ---
+/**
+ * Título de página.
+ *
+ * `label` es opcional y debe nombrar algo que el título no diga ya (el tipo de
+ * documento, el cargo de una persona). Antes nueve páginas lo usaban con el
+ * valor literal "REDRYS", que no informaba de nada y producía el mismo compás
+ * en todas las interiores; el breadcrumb ya sitúa al lector.
+ */
+
 interface Props {
   title: string;
   label?: string;
@@ -9,12 +18,7 @@ const { title, label, subtitle } = Astro.props;
 ---
 
 <div class="section-title">
-  {label && (
-    <div class="section-title__eyebrow">
-      <span class="section-title__line"></span>
-      <span class="section-title__label">{label}</span>
-    </div>
-  )}
+  {label && <span class="section-title__label">{label}</span>}
   <h1 class="section-title__heading">{title}</h1>
   {subtitle && <p class="section-title__subtitle">{subtitle}</p>}
 </div>

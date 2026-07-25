@@ -22,12 +22,22 @@ export const site = {
   facultyShort: 'FCA',
 };
 
+/**
+ * Navegación principal.
+ *
+ * `Documentos` estaba únicamente en el pie. El acta de creación y el reglamento
+ * son la prueba de que la red existe y la ruta que sigue quien viene a
+ * verificarla, así que su ausencia del menú se leía como que no estaban
+ * publicados. `Objetivos` sale del menú porque su contenido pertenece al mismo
+ * ámbito que `La Red`, que ya enlaza a él; sigue accesible desde el pie, desde
+ * la portada y desde las tres líneas de investigación.
+ */
 export const navLinks = [
   { label: 'Inicio', href: '/' },
   { label: 'La Red', href: '/la-red/' },
   { label: 'Líneas', href: '/lineas-investigacion/' },
-  { label: 'Objetivos', href: '/objetivos/' },
   { label: 'Integrantes', href: '/integrantes/' },
+  { label: 'Documentos', href: '/documentos/' },
   { label: 'Contacto', href: '/contacto/' },
 ];
 

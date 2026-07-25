@@ -149,6 +149,48 @@ Edita `navLinks` y `footerLinks` en `src/data/site.ts`.
 - Revisa el menú móvil.
 - No enlaces Galería o Repositorio como secciones terminadas mientras sigan
   siendo placeholders.
+- **Seis entradas es el máximo cómodo** en el menú de escritorio: por encima de
+  eso la navegación se parte en dos líneas a 1024 px, que es diseño roto. Si
+  necesitas añadir una sección, retira otra o agrúpala dentro de una existente.
+
+`Documentos` está en el menú principal a propósito: el acta y el reglamento son
+la prueba de que la red existe y la ruta que sigue quien viene a verificarla.
+`Objetivos` vive solo en el pie porque su contenido pertenece al mismo ámbito
+que `La Red`, que ya enlaza a él.
+
+### Citas a artículos del reglamento
+
+No escribas el anclaje a mano. Usa el ayudante:
+
+```astro
+---
+import { articulosHref } from '../lib/reglamento';
+const articulo = await articulosHref([5, 12], import.meta.env.BASE_URL);
+---
+<a href={articulo[5]}>Artículo 5 del reglamento</a>
+```
+
+Los anclajes se derivan de los encabezados del Markdown publicado, así que
+siguen a la redacción del documento. Si citas un artículo que no existe en el
+reglamento, **el build falla**: es la señal de que la cita está mal o de que el
+documento cambió, no un error del ayudante.
+
+### Procedencia y estado de aprobación
+
+Las páginas de línea, documento y perfil muestran su procedencia en la columna
+lateral mediante el componente `Provenance`. El estado se toma del campo
+`aprobacion` de la ficha y se pinta con color:
+
+| Valor de `aprobacion` | Cómo se muestra |
+| --- | --- |
+| `documento-institucional` | «Transcripción de un documento institucional», en verde |
+| `editorial-aprobada` | «Redacción aprobada por la coordinación», en verde |
+| `editorial-pendiente-de-aprobacion` | «Redacción pendiente de ratificación», en gris |
+
+Cambiar el campo en el frontmatter es suficiente: no hay texto que actualizar en
+la plantilla. Registra siempre la aprobación en
+[`docs/FUENTES-Y-PENDIENTES.md`](docs/FUENTES-Y-PENDIENTES.md) en la misma
+entrega.
 
 ### Imágenes
 
@@ -231,20 +273,55 @@ de implementarlo se debe decidir:
 Si el volumen o frecuencia crece de forma importante, revisa las señales de
 evolución en `ARCHITECTURE.md` antes de construir una solución manual.
 
-### Colores y tipografía
+### Colores, tipografía y estilos
 
-Edita `src/styles/global.css`.
+Edita `src/styles/global.css`. Todo el sistema vive en las custom properties de
+`:root`: color, escala tipográfica y ritmo. Haz los cambios en los tokens, nunca
+sustituyendo un valor suelto dentro de una regla.
 
-Los colores principales están en las custom properties de `:root`. Haz cambios
-globales en los tokens en lugar de reemplazar colores aislados.
+Cuatro reglas del sistema conviene no romper por descuido:
+
+1. **Dos voces tipográficas.** `--font-serif` compone el texto institucional
+   (títulos y prosa transcrita); `--font-sans`, el aparato que lo rodea
+   (navegación, etiquetas, metadatos, controles). Antes de aplicar una familia a
+   un elemento nuevo, decide a cuál de las dos categorías pertenece.
+2. **Dos lenguajes de contenedor.** `record` es una ficha que lleva a otra
+   página; `panel` agrupa datos que no llevan a ninguna parte. Cualquier otra
+   lista se separa con filetes y espacio. **No añadas una tercera variante de
+   caja**: el diseño anterior tenía nueve y ninguna significaba nada.
+3. **Color opaco y medido.** No introduzcas grises con `rgba(..., α)`. Si
+   necesitas un tono nuevo, añade un token opaco y anota su contraste medido en
+   la cabecera del archivo, junto a los demás.
+4. **El verde es semántico.** `--color-ratified` solo marca contenido respaldado
+   por un documento institucional. No lo uses como acento decorativo; el acento
+   del sitio es `--color-accent` y es único.
+
+Para actualizar una tipografía:
+
+```bash
+npm run sync:fonts
+```
+
+Copia los `.woff2` desde los paquetes de `devDependencies` a `public/fonts/`.
+Los archivos se versionan a propósito: el sitio no debe depender de
+`node_modules` ni de un CDN para renderizar su texto. Si cambias de familia,
+actualiza también los `@font-face`, el stack de `--font-serif`/`--font-sans` y
+los dos `<link rel="preload">` de `BaseLayout.astro`, y conserva la licencia del
+archivo junto a las fuentes.
+
+**No reintroduzcas Google Fonts.** `fonts.googleapis.com` no está en
+`ALLOWED_EXTERNAL_HOSTS` de `scripts/verify-sites-build.mjs`, así que la
+verificación fallará. Es intencionado: era la única dependencia externa del
+sitio y la causa de todo su layout shift.
 
 Después de modificar estilos, revisa:
 
 - Contraste y legibilidad.
-- Header y menú móvil.
-- Tarjetas y botones.
-- Pantallas angostas y escritorio.
+- Header, menú móvil y cabecera fija al desplazarse.
+- Fichas, paneles y botones (incluido `.btn--ghost`, que debe verse como botón).
+- Pantallas angostas y escritorio, con atención a la franja de 768 a 1023 px.
 - Estados de foco con teclado.
+- La columna lateral de procedencia en una línea, un documento y un perfil.
 - Página 404.
 
 ## Verificación
@@ -262,9 +339,14 @@ debe publicar.
 
 La verificación falla, entre otros motivos, si una ruta indexable tiene menos de
 200 palabras, si un título supera los 75 caracteres, si hay más de un H1, si
-aparece un dominio externo no autorizado o si el sitemap y las rutas indexables
-dejan de coincidir. Son fallos intencionados: señalan un problema de contenido,
-no un error del script.
+aparece un dominio externo no autorizado, si cambia un archivo preservado
+(imágenes, PDFs o tipografías) o si el sitemap y las rutas indexables dejan de
+coincidir. Son fallos intencionados: señalan un problema de contenido, no un
+error del script.
+
+El build falla antes, y también a propósito, si una ficha no declara `fuente` y
+`aprobacion`, o si una página cita un artículo que no existe en el reglamento
+publicado.
 
 Además realiza una revisión visual:
 
@@ -272,9 +354,11 @@ Además realiza una revisión visual:
 2. Prueba el menú en móvil y escritorio, **incluido el manejo con teclado**:
    tabula hasta el control del menú y ábrelo con la barra espaciadora.
 3. Comprueba enlaces internos, breadcrumbs, correo, teléfono y descargas.
-4. Abre ambos PDFs.
-5. Visita una ruta inexistente.
-6. Revisa que no haya contenido provisional presentado como definitivo.
+4. Sigue una cita por artículo hasta el reglamento y confirma que aterriza en el
+   artículo correcto, sin quedar oculta bajo la cabecera fija.
+5. Abre ambos PDFs.
+6. Visita una ruta inexistente.
+7. Revisa que no haya contenido provisional presentado como definitivo.
 
 ## Publicación
 

@@ -3,11 +3,15 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionTitle from '../../components/SectionTitle.astro';
 
+import { articulosHref } from '../../lib/reglamento';
+
 const base = import.meta.env.BASE_URL;
 
 const lineas = (await getCollection('lineas')).sort(
   (a, b) => a.data.orden - b.data.orden,
 );
+
+const articulo = await articulosHref([1, 5, 12, 13], base);
 
 const ultimaActualizacion = lineas
   .map((linea) => linea.data.actualizado.toISOString().slice(0, 10))
@@ -24,43 +28,47 @@ const ultimaActualizacion = lineas
 >
   <section class="page-section container">
     <SectionTitle
-      label="REDRYS"
       title="Líneas de investigación"
       subtitle="El Artículo 1 del reglamento de la REDRYS establece tres líneas de investigación e incidencia social. Cada una organiza proyectos, formación y difusión dentro de la red."
     />
 
     <div class="content-block">
       <p class="content-block__text">
-        Las tres líneas comparten un mismo marco de trabajo. Todo proyecto debe
-        integrar al menos un profesor-investigador y dos estudiantes de posgrado,
-        debe contar con una evaluación de impacto social, y sus resultados deben
-        divulgarse en acceso abierto citando la afiliación REDRYS/UAGro. Estas
-        condiciones están fijadas en los
-        <a href={`${base}documentos/reglamento/`}>Artículos 12 y 13 del reglamento</a>.
+        Las tres líneas quedan establecidas en el
+        <a href={articulo[1]}>Artículo 1 del reglamento</a> y comparten un mismo marco
+        de trabajo. Todo proyecto debe integrar al menos un profesor-investigador y
+        dos estudiantes de posgrado y contar con una evaluación de impacto social
+        (<a href={articulo[12]}>Artículo 12</a>); sus resultados deben divulgarse en
+        acceso abierto citando la afiliación REDRYS/UAGro
+        (<a href={articulo[13]}>Artículo 13</a>).
       </p>
     </div>
 
-    <ul class="linea-index">
+    <ul class="record-grid record-grid--3">
       {lineas.map((linea) => (
-        <li class="linea-index__item">
-          <article class="linea-index__card">
-            <p class="linea-index__number">{String(linea.data.orden).padStart(2, '0')}</p>
-            <h2 class="linea-index__title">
-              <a href={`${base}lineas-investigacion/${linea.id}/`}>{linea.data.titulo}</a>
+        <li>
+          <article class="record">
+            <p class="record__eyebrow">
+              Línea {String(linea.data.orden).padStart(2, '0')}
+            </p>
+            <h2 class="record__title">
+              <a class="record__link" href={`${base}lineas-investigacion/${linea.id}/`}>
+                {linea.data.titulo}
+              </a>
             </h2>
-            <p class="linea-index__summary">{linea.data.resumen}</p>
-            <span class="linea-index__cta" aria-hidden="true">Ver la línea →</span>
+            <p class="record__summary">{linea.data.resumen}</p>
           </article>
         </li>
       ))}
     </ul>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Cómo participar en una línea</h2>
       <p class="content-block__text">
-        La incorporación a la red y a sus líneas se realiza conforme al Artículo 5
-        del reglamento. Los requisitos y el procedimiento están descritos en la
-        página <a href={`${base}colaborar/`}>Colaborar con la REDRYS</a>.
+        La incorporación a la red y a sus líneas se realiza conforme al
+        <a href={articulo[5]}>Artículo 5 del reglamento</a>. Los requisitos y el
+        procedimiento están descritos en la página
+        <a href={`${base}colaborar/`}>Colaborar con la REDRYS</a>.
       </p>
     </div>
   </section>

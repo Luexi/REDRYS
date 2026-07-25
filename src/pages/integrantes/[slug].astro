@@ -1,9 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionTitle from '../../components/SectionTitle.astro';
+import Provenance from '../../components/Provenance.astro';
 import { integrantesConPerfil } from '../../data/integrantes';
 import { site } from '../../data/site';
 import { ORGANIZATION_ID } from '../../lib/schema';
+import { articulosHref } from '../../lib/reglamento';
 
 export async function getStaticPaths() {
   return integrantesConPerfil.map((integrante) => ({
@@ -24,6 +26,8 @@ const dependencia =
   integrante.dependency === 'FCA'
     ? 'Facultad de Contaduría y Administración'
     : 'Facultad de Comunicación';
+
+const articulo = await articulosHref([6, 7, 12, 13], base);
 
 /**
  * `Person` se emite únicamente para integrantes con perfil académico
@@ -72,6 +76,8 @@ const personNode = {
       subtitle={`${dependencia} · Universidad Autónoma de Guerrero`}
     />
 
+    <div class="page-body">
+      <div class="page-body__main">
     {integrante.semblanza && (
       <div class="content-block">
         <h2 class="content-block__title">Semblanza</h2>
@@ -79,7 +85,7 @@ const personNode = {
       </div>
     )}
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Adscripción académica</h2>
       <dl class="definition-list">
         <div class="definition-list__row">
@@ -108,23 +114,25 @@ const personNode = {
           </div>
         )}
       </dl>
-      <p class="content-block__text">
+      <p class="content-block__text" style="margin-top: 1.5rem;">
         La línea del cuerpo académico corresponde a la adscripción en la UAGro y no
         equivale a las
         <a href={`${base}lineas-investigacion/`}>líneas de investigación de la REDRYS</a>.
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Participación en la REDRYS</h2>
       <p class="content-block__text">
-        Como profesor-investigador de la red, conforme a los Artículos 6 y 7 del
-        <a href={`${base}documentos/reglamento/`}>reglamento</a>, participa en los
-        proyectos y actividades de la REDRYS, puede postularse para roles de
-        coordinación y contribuye al menos en un proyecto anual. Los proyectos de la
-        red integran obligatoriamente estudiantes de posgrado y cuentan con una
-        evaluación de impacto social; sus resultados se divulgan en acceso abierto
-        citando la afiliación REDRYS/UAGro.
+        Como profesor-investigador de la red, conforme a los
+        <a href={articulo[6]}>Artículos 6</a> y <a href={articulo[7]}>7</a> del
+        reglamento, participa en los proyectos y actividades de la REDRYS, puede
+        postularse para roles de coordinación y contribuye al menos en un proyecto
+        anual. Los proyectos de la red integran obligatoriamente estudiantes de
+        posgrado y cuentan con una evaluación de impacto social
+        (<a href={articulo[12]}>Artículo 12</a>); sus resultados se divulgan en acceso
+        abierto citando la afiliación REDRYS/UAGro
+        (<a href={articulo[13]}>Artículo 13</a>).
       </p>
       <p class="content-block__text">
         El trabajo de la red se organiza en tres
@@ -136,7 +144,7 @@ const personNode = {
       </p>
     </div>
 
-    <div class="content-block">
+    <div class="content-block content-block--group">
       <h2 class="content-block__title">Contacto con la red</h2>
       <p class="content-block__text">
         Las consultas dirigidas a integrantes de la REDRYS se canalizan a través del
@@ -145,16 +153,24 @@ const personNode = {
         <a href={`${base}integrantes/`}>directorio completo de integrantes</a>.
       </p>
     </div>
+      </div>
 
-    <aside class="source-note">
-      <h2 class="source-note__title">Procedencia de este perfil</h2>
-      <p class="source-note__text">
-        Los datos de formación, distinciones y cuerpo académico proceden del sitio
-        público de la Maestría en Dirección de Organizaciones de la Facultad de
-        Contaduría y Administración de la UAGro, y están pendientes de ratificación
-        por la coordinación de la REDRYS. No se publican identificadores ORCID,
-        perfiles externos ni fotografías mientras no se recopilen y autoricen.
-      </p>
-    </aside>
+      <div class="page-body__aside">
+        <Provenance
+          title="Procedencia de este perfil"
+          estado="editorial-pendiente-de-aprobacion"
+        >
+          <p class="provenance__text">
+            Los datos de formación, distinciones y cuerpo académico proceden del sitio
+            público de la Maestría en Dirección de Organizaciones de la Facultad de
+            Contaduría y Administración de la UAGro.
+          </p>
+          <p class="provenance__text">
+            No se publican identificadores ORCID, perfiles externos ni fotografías
+            mientras no se recopilen y autoricen.
+          </p>
+        </Provenance>
+      </div>
+    </div>
   </section>
 </BaseLayout>
