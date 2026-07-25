@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const publicRoutes = [
   '/',
@@ -13,12 +14,12 @@ const publicRoutes = [
   '/repositorio/',
 ];
 
-const routeFiles = new Map(
+const routeAssets = new Map(
   publicRoutes.map((route) => [
     route,
     route === '/'
-      ? 'dist/client/index.html'
-      : `dist/client${route}index.html`,
+      ? '/index.html'
+      : `${route}index.html`,
   ]),
 );
 
@@ -48,9 +49,52 @@ async function sha256(path) {
 }
 
 const titles = [];
+const workerURL = pathToFileURL(resolve('dist/server/index.js'));
+workerURL.searchParams.set('verify', `${process.pid}-${Date.now()}`);
+const {
+  GENERATED_TEXT_ASSETS,
+  default: generatedWorker,
+} = await import(workerURL.href);
+const generatedEnvironment = {
+  ASSETS: {
+    fetch: async () => new Response('Not found', { status: 404 }),
+  },
+};
+const canonicalResponse = await generatedWorker.fetch(
+  new Request('https://redrys.org/'),
+  generatedEnvironment,
+);
+const temporaryResponse = await generatedWorker.fetch(
+  new Request('https://redrys-org.example.chatgpt.site/'),
+  generatedEnvironment,
+);
+const temporaryRobots = await generatedWorker.fetch(
+  new Request('https://redrys-org.example.chatgpt.site/robots.txt'),
+  generatedEnvironment,
+);
+const generatedNotFound = await generatedWorker.fetch(
+  new Request('https://redrys.org/no-existe/', {
+    headers: { Accept: 'text/html' },
+  }),
+  generatedEnvironment,
+);
 
-for (const [route, file] of routeFiles) {
-  const html = await readFile(resolve(file), 'utf8');
+assert.equal(canonicalResponse.status, 200);
+assert.equal(canonicalResponse.headers.get('X-Robots-Tag'), null);
+assert.equal(temporaryResponse.status, 200);
+assert.equal(
+  temporaryResponse.headers.get('X-Robots-Tag'),
+  'noindex, nofollow',
+);
+assert.equal(await temporaryRobots.text(), 'User-agent: *\nDisallow: /\n');
+assert.equal(generatedNotFound.status, 404);
+assert.equal(
+  generatedNotFound.headers.get('X-Robots-Tag'),
+  'noindex, nofollow',
+);
+
+for (const [route, assetPath] of routeAssets) {
+  const html = GENERATED_TEXT_ASSETS.get(assetPath)?.body;
   const title = html.match(/<title>([^<]+)<\/title>/i)?.[1];
   const canonical = link(html, 'canonical');
   const expectedCanonical = new URL(route, 'https://redrys.org').href;
@@ -106,7 +150,7 @@ assert.equal(
   'Every public route must have a unique title',
 );
 
-const robots = await readFile(resolve('dist/client/robots.txt'), 'utf8');
+const robots = GENERATED_TEXT_ASSETS.get('/robots.txt')?.body;
 assert.match(robots, /User-agent:\s*\*/i);
 assert.match(robots, /Allow:\s*\//i);
 assert.match(
@@ -114,7 +158,7 @@ assert.match(
   /Sitemap:\s*https:\/\/redrys\.org\/sitemap-index\.xml/i,
 );
 
-const sitemap = await readFile(resolve('dist/client/sitemap-0.xml'), 'utf8');
+const sitemap = GENERATED_TEXT_ASSETS.get('/sitemap-0.xml')?.body;
 const sitemapRoutes = [
   ...sitemap.matchAll(/<loc>https:\/\/redrys\.org([^<]*)<\/loc>/g),
 ]
@@ -122,7 +166,7 @@ const sitemapRoutes = [
   .sort();
 assert.deepEqual(sitemapRoutes, [...publicRoutes].sort());
 
-const notFoundHTML = await readFile(resolve('dist/client/404.html'), 'utf8');
+const notFoundHTML = GENERATED_TEXT_ASSETS.get('/404.html')?.body;
 assert.equal(meta(notFoundHTML, 'name', 'robots'), 'noindex, nofollow');
 
 for (const asset of [
@@ -139,6 +183,18 @@ for (const asset of [
 }
 
 await readFile(resolve('dist/server/index.js'), 'utf8');
+for (const internalTextAsset of [
+  'index.html',
+  '404.html',
+  'robots.txt',
+  'sitemap-index.xml',
+  'sitemap-0.xml',
+]) {
+  await assert.rejects(
+    access(resolve('dist/client', internalTextAsset)),
+    `${internalTextAsset} must be served by the Worker`,
+  );
+}
 const hosting = JSON.parse(
   await readFile(resolve('dist/.openai/hosting.json'), 'utf8'),
 );

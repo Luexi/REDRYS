@@ -1,5 +1,6 @@
 const APEX_HOST = 'redrys.org';
 const TEMPORARY_HOST_SUFFIX = '.chatgpt.site';
+const GENERATED_TEXT_ASSETS = new Map(/* __GENERATED_TEXT_ASSETS__ */);
 
 const PAGE_ASSETS = new Map([
   ['/', '/index.html'],
@@ -58,6 +59,15 @@ function addResponseHeaders(response, { noindex = false } = {}) {
 }
 
 async function fetchAsset(request, env, pathname) {
+  const generatedAsset = GENERATED_TEXT_ASSETS.get(pathname);
+
+  if (generatedAsset) {
+    return new Response(request.method === 'HEAD' ? null : generatedAsset.body, {
+      status: 200,
+      headers: { 'Content-Type': generatedAsset.contentType },
+    });
+  }
+
   const assetURL = new URL(request.url);
   assetURL.pathname = pathname;
 
@@ -133,5 +143,5 @@ const worker = {
   },
 };
 
-export { PAGE_ASSETS, isTemporaryHost };
+export { GENERATED_TEXT_ASSETS, PAGE_ASSETS, isTemporaryHost };
 export default worker;
