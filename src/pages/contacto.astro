@@ -2,55 +2,113 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import { site } from '../data/site';
+
+const base = import.meta.env.BASE_URL;
 ---
 
-<BaseLayout title="Contacto" description="Información de contacto de la REDRYS — Red de Educación para el Desarrollo Regional y Sostenible.">
-
+<BaseLayout
+  title="Contacto"
+  seoTitle="Contacto — REDRYS, FCA-UAGro, Acapulco de Juárez"
+  description="Datos de contacto de la REDRYS: correo institucional, teléfono y sede en el Edificio de Posgrado de la Facultad de Contaduría y Administración de la UAGro, Acapulco de Juárez, Guerrero."
+  breadcrumbs={[{ label: 'Contacto', href: '/contacto/' }]}
+>
   <section class="page-section container">
     <SectionTitle
       label="Contacto"
-      title="Contacto"
-      subtitle="Para consultas, propuestas de colaboración o solicitudes de incorporación a la red."
+      title="Contacto con la REDRYS"
+      subtitle="Para consultas académicas, propuestas de colaboración institucional o solicitudes de incorporación a la red."
     />
 
-    <div class="contact-info">
-      <div class="contact-item">
-        <span class="contact-item__label">Correo electrónico</span>
-        <span class="contact-item__value">
-          <a href={`mailto:${site.email}`}>{site.email}</a>
-        </span>
-      </div>
+    <div class="content-block">
+      <h2 class="content-block__title">Datos de contacto</h2>
+      <dl class="contact-info">
+        <div class="contact-item">
+          <dt class="contact-item__label">Correo electrónico</dt>
+          <dd class="contact-item__value">
+            <a href={`mailto:${site.email}`}>{site.email}</a>
+          </dd>
+        </div>
 
-      <div class="contact-item">
-        <span class="contact-item__label">Teléfono</span>
-        <span class="contact-item__value">{site.phone}</span>
-      </div>
+        <div class="contact-item">
+          <dt class="contact-item__label">Teléfono</dt>
+          <dd class="contact-item__value">
+            <a href={`tel:${site.phoneInternational}`}>744 106 9320</a>
+          </dd>
+        </div>
 
-      <div class="contact-item">
-        <span class="contact-item__label">Dirección</span>
-        <span class="contact-item__value">
-          {site.address}<br />{site.city}
-        </span>
-      </div>
-
-      <div class="contact-item">
-        <span class="contact-item__label">Coordinador</span>
-        <span class="contact-item__value">{site.coordinator}</span>
-      </div>
+        <div class="contact-item">
+          <dt class="contact-item__label">Fundador de la Red</dt>
+          <dd class="contact-item__value">{site.coordinator}</dd>
+        </div>
+      </dl>
     </div>
 
-    <div style="margin-top: 2.5rem;">
+    <div class="content-block">
+      <h2 class="content-block__title">Sede</h2>
+      <address class="contact-address">
+        {site.address}<br />
+        {site.streetAddress}<br />
+        C.P. {site.postalCode}, {site.city}<br />
+        México
+      </address>
+      <p class="content-block__text">
+        La sede de la red coincide con la de la {site.faculty} de la
+        {' '}{site.institution}, conforme al Artículo 3 de su
+        <a href={`${base}documentos/reglamento/`}>reglamento</a>.
+      </p>
+    </div>
+
+    <div class="content-block">
       <a class="btn btn--primary" href={`mailto:${site.email}`}>
         Escribir un correo
       </a>
     </div>
 
-    <div class="content-block" style="margin-top: 3rem;">
+    <div class="content-block">
+      <h2 class="content-block__title">Incorporarse a la red</h2>
       <p class="content-block__text">
-        Las solicitudes de incorporación a la red deben incluir currículum vitae y carta de intención,
-        y serán evaluadas por el Comité Académico conforme al reglamento vigente.
+        Las solicitudes de incorporación deben incluir currículum vitae y carta de
+        intención, y serán evaluadas por el Comité Académico conforme al reglamento
+        vigente. Los requisitos completos, los derechos y las obligaciones de los
+        integrantes están en la página
+        <a href={`${base}colaborar/`}>Colaborar con la REDRYS</a>.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Qué incluir en tu mensaje</h2>
+      <p class="content-block__text">
+        Para que la coordinación pueda canalizar tu mensaje a la comisión
+        correspondiente —investigación, vinculación, difusión o formación—, conviene
+        indicar desde el primer correo:
+      </p>
+      <ul class="feature-list feature-list--simple">
+        <li class="feature-list__item">
+          El motivo del contacto: incorporación a la red, propuesta de colaboración,
+          consulta académica o solicitud de información.
+        </li>
+        <li class="feature-list__item">
+          La línea de investigación con la que se relaciona, si aplica.
+        </li>
+        <li class="feature-list__item">
+          Tu institución u organización de procedencia.
+        </li>
+        <li class="feature-list__item">
+          En solicitudes de incorporación, currículum vitae y carta de intención, tal
+          como exige el Artículo 5 del reglamento.
+        </li>
+      </ul>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Propuestas de vinculación</h2>
+      <p class="content-block__text">
+        Dependencias públicas, organizaciones sociales y empresas pueden proponer
+        colaboraciones relacionadas con alguna de las tres
+        <a href={`${base}lineas-investigacion/`}>líneas de investigación</a> de la
+        red. Las propuestas se dirigen al mismo correo institucional e indican la
+        línea de interés y el tipo de colaboración planteada.
       </p>
     </div>
   </section>
-
 </BaseLayout>

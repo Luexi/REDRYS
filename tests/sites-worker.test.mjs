@@ -1,11 +1,30 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import worker from '../sites/worker.mjs';
+import { createWorker } from '../sites/worker.mjs';
+
+/**
+ * En el código fuente las rutas están vacías: las inyecta
+ * `scripts/prepare-sites-build.mjs` a partir del build. Las pruebas usan una
+ * lista propia para verificar el comportamiento del Worker de forma aislada.
+ */
+const worker = createWorker({
+  pageRoutes: [
+    '/',
+    '/la-red/',
+    '/objetivos/',
+    '/lineas-investigacion/',
+    '/lineas-investigacion/cultura-tributaria-y-responsabilidad-fiscal/',
+  ],
+});
 
 const assets = new Map([
   ['/index.html', ['home', 'text/html; charset=utf-8']],
   ['/la-red/index.html', ['la red', 'text/html; charset=utf-8']],
+  [
+    '/lineas-investigacion/cultura-tributaria-y-responsabilidad-fiscal/index.html',
+    ['linea', 'text/html; charset=utf-8'],
+  ],
   ['/404.html', ['not found', 'text/html; charset=utf-8']],
   ['/robots.txt', ['public robots', 'text/plain; charset=utf-8']],
   ['/images/logo-redrys-uagro.png', ['png', 'image/png']],
@@ -56,6 +75,17 @@ test('serves the home and public page assets on the canonical host', async () =>
   assert.deepEqual(page.requests, ['/la-red/index.html']);
 });
 
+test('serves nested routes such as research lines', async () => {
+  const { response, requests } = await request(
+    'https://redrys.org/lineas-investigacion/cultura-tributaria-y-responsabilidad-fiscal/',
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(requests, [
+    '/lineas-investigacion/cultura-tributaria-y-responsabilidad-fiscal/index.html',
+  ]);
+});
+
 test('redirects public pages without a trailing slash', async () => {
   const { response, requests } = await request(
     'https://redrys.org/la-red?source=test',
@@ -67,6 +97,18 @@ test('redirects public pages without a trailing slash', async () => {
     'https://redrys.org/la-red/?source=test',
   );
   assert.deepEqual(requests, []);
+});
+
+test('redirects nested public pages without a trailing slash', async () => {
+  const { response } = await request(
+    'https://redrys.org/lineas-investigacion/cultura-tributaria-y-responsabilidad-fiscal',
+  );
+
+  assert.equal(response.status, 308);
+  assert.equal(
+    response.headers.get('Location'),
+    'https://redrys.org/lineas-investigacion/cultura-tributaria-y-responsabilidad-fiscal/',
+  );
 });
 
 test('redirects www to the apex while preserving path and query', async () => {

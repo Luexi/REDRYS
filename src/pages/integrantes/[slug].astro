@@ -1,0 +1,160 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import { integrantesConPerfil } from '../../data/integrantes';
+import { site } from '../../data/site';
+import { ORGANIZATION_ID } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  return integrantesConPerfil.map((integrante) => ({
+    params: { slug: integrante.slug },
+    props: { integrante },
+  }));
+}
+
+const { integrante } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+const displayName = integrante.grado
+  ? `${integrante.grado} ${integrante.name}`
+  : integrante.name;
+
+const dependencia =
+  integrante.dependency === 'FCA'
+    ? 'Facultad de Contaduría y Administración'
+    : 'Facultad de Comunicación';
+
+/**
+ * `Person` se emite únicamente para integrantes con perfil académico
+ * documentado. No se declaran `sameAs` porque todavía no se han recopilado
+ * identificadores ORCID ni perfiles institucionales verificados.
+ */
+const personNode = {
+  '@type': 'Person',
+  '@id': `${canonical}#persona`,
+  name: integrante.name,
+  ...(integrante.grado ? { honorificPrefix: integrante.grado } : {}),
+  ...(integrante.semblanza ? { description: integrante.semblanza } : {}),
+  ...(integrante.email ? { email: integrante.email } : {}),
+  jobTitle: integrante.role,
+  memberOf: { '@id': ORGANIZATION_ID },
+  affiliation: {
+    '@type': 'CollegeOrUniversity',
+    name: site.institution,
+    url: site.institutionUrl,
+  },
+  worksFor: {
+    '@type': 'Organization',
+    name: `${dependencia}, ${site.institution}`,
+  },
+};
+---
+
+<BaseLayout
+  title={displayName}
+  seoTitle={`${displayName} — Integrante de REDRYS, UAGro`}
+  description={
+    integrante.semblanza
+      ? `${displayName}, ${integrante.role.toLowerCase()} de la REDRYS. ${integrante.semblanza}`.slice(0, 300)
+      : `${displayName}, ${integrante.role.toLowerCase()} de la REDRYS, adscrito a la ${dependencia} de la UAGro.`
+  }
+  schemaNodes={[personNode]}
+  breadcrumbs={[
+    { label: 'Integrantes', href: '/integrantes/' },
+    { label: integrante.name },
+  ]}
+>
+  <section class="page-section container">
+    <SectionTitle
+      label={integrante.role}
+      title={displayName}
+      subtitle={`${dependencia} · Universidad Autónoma de Guerrero`}
+    />
+
+    {integrante.semblanza && (
+      <div class="content-block">
+        <h2 class="content-block__title">Semblanza</h2>
+        <p class="content-block__text">{integrante.semblanza}</p>
+      </div>
+    )}
+
+    <div class="content-block">
+      <h2 class="content-block__title">Adscripción académica</h2>
+      <dl class="definition-list">
+        <div class="definition-list__row">
+          <dt class="definition-list__term">Cargo en la REDRYS</dt>
+          <dd class="definition-list__value">{integrante.role}</dd>
+        </div>
+        <div class="definition-list__row">
+          <dt class="definition-list__term">Dependencia</dt>
+          <dd class="definition-list__value">{dependencia}, {site.institution}</dd>
+        </div>
+        {integrante.cuerpoAcademico && (
+          <div class="definition-list__row">
+            <dt class="definition-list__term">Cuerpo académico</dt>
+            <dd class="definition-list__value">
+              {integrante.cuerpoAcademico}
+              {integrante.lineaCuerpoAcademico && ` — ${integrante.lineaCuerpoAcademico}`}
+            </dd>
+          </div>
+        )}
+        {integrante.email && (
+          <div class="definition-list__row">
+            <dt class="definition-list__term">Correo institucional</dt>
+            <dd class="definition-list__value">
+              <a href={`mailto:${integrante.email}`}>{integrante.email}</a>
+            </dd>
+          </div>
+        )}
+      </dl>
+      <p class="content-block__text">
+        La línea del cuerpo académico corresponde a la adscripción en la UAGro y no
+        equivale a las
+        <a href={`${base}lineas-investigacion/`}>líneas de investigación de la REDRYS</a>.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Participación en la REDRYS</h2>
+      <p class="content-block__text">
+        Como profesor-investigador de la red, conforme a los Artículos 6 y 7 del
+        <a href={`${base}documentos/reglamento/`}>reglamento</a>, participa en los
+        proyectos y actividades de la REDRYS, puede postularse para roles de
+        coordinación y contribuye al menos en un proyecto anual. Los proyectos de la
+        red integran obligatoriamente estudiantes de posgrado y cuentan con una
+        evaluación de impacto social; sus resultados se divulgan en acceso abierto
+        citando la afiliación REDRYS/UAGro.
+      </p>
+      <p class="content-block__text">
+        El trabajo de la red se organiza en tres
+        <a href={`${base}lineas-investigacion/`}>líneas de investigación e incidencia
+        social</a>: dirección y liderazgo para el desarrollo sostenible, cultura
+        tributaria y responsabilidad fiscal, y políticas públicas para el desarrollo
+        regional. La asignación nominal de integrantes a cada línea se publicará
+        cuando la coordinación la confirme.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Contacto con la red</h2>
+      <p class="content-block__text">
+        Las consultas dirigidas a integrantes de la REDRYS se canalizan a través del
+        correo institucional de la red:
+        <a href={`mailto:${site.email}`}>{site.email}</a>. Ver también el
+        <a href={`${base}integrantes/`}>directorio completo de integrantes</a>.
+      </p>
+    </div>
+
+    <aside class="source-note">
+      <h2 class="source-note__title">Procedencia de este perfil</h2>
+      <p class="source-note__text">
+        Los datos de formación, distinciones y cuerpo académico proceden del sitio
+        público de la Maestría en Dirección de Organizaciones de la Facultad de
+        Contaduría y Administración de la UAGro, y están pendientes de ratificación
+        por la coordinación de la REDRYS. No se publican identificadores ORCID,
+        perfiles externos ni fotografías mientras no se recopilen y autoricen.
+      </p>
+    </aside>
+  </section>
+</BaseLayout>

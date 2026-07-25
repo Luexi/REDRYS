@@ -1,34 +1,71 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { site } from '../data/site';
+import {
+  buildGraph,
+  breadcrumbNode,
+  organizationNode,
+  webPageNode,
+  websiteNode,
+} from '../lib/schema';
 import '../styles/global.css';
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
 
 interface Props {
   title: string;
+  /** Título completo de <title>. Si se omite se usa la plantilla estándar. */
+  seoTitle?: string;
   description?: string;
   ogImage?: string;
   noindex?: boolean;
+  /** Omite <link rel="canonical">. Solo para la página 404. */
+  noCanonical?: boolean;
+  breadcrumbs?: Crumb[];
+  /** Fecha ISO de última actualización del contenido. */
+  dateModified?: string;
+  /** Nodos JSON-LD adicionales propios de la página. */
+  schemaNodes?: unknown[];
 }
 
 const {
   title,
+  seoTitle,
   description = 'Red de Educación para el Desarrollo Regional y Sostenible — UAGro',
   ogImage = 'images/screen.png',
   noindex = false,
+  noCanonical = false,
+  breadcrumbs,
+  dateModified,
+  schemaNodes = [],
 } = Astro.props;
 
-// Generación limpia del Canonical URL absoluta
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 
-// Generación de la URL absoluta para Open Graph
 const cleanOgPath = ogImage.startsWith('/') ? ogImage.slice(1) : ogImage;
 const absoluteOgImage = new URL(`${import.meta.env.BASE_URL}${cleanOgPath}`, Astro.site).href;
 
-// Título formateado enriquecido para la Home y páginas internas
-const formattedTitle = title === 'Inicio'
-  ? `${site.fullName} — REDRYS (UAGro)`
-  : `${title} — REDRYS`;
+const formattedTitle = seoTitle ?? `${title} — REDRYS`;
+
+const jsonLd = buildGraph([
+  organizationNode(),
+  Astro.url.pathname === '/' ? websiteNode() : null,
+  noindex
+    ? null
+    : webPageNode({
+        canonical: canonicalURL,
+        title: formattedTitle,
+        description,
+        dateModified,
+      }),
+  breadcrumbs?.length ? breadcrumbNode(canonicalURL, breadcrumbs) : null,
+  ...schemaNodes,
+]);
 ---
 
 <!doctype html>
@@ -36,15 +73,15 @@ const formattedTitle = title === 'Inicio'
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Metaetiquetas Básicas de SEO -->
+
+    <!-- Metaetiquetas básicas de SEO -->
     <title>{formattedTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonicalURL} />
+    {!noCanonical && <link rel="canonical" href={canonicalURL} />}
     <meta name="theme-color" content="#0D2F36" />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {noindex && <meta name="robots" content="noindex, follow" />}
 
-    <!-- Iconos premium y compatibilidad móvil -->
+    <!-- Iconos y compatibilidad móvil -->
     <link rel="icon" type="image/png" href={`${import.meta.env.BASE_URL}images/logo-redrys-uagro.png`} />
     <link rel="apple-touch-icon" href={`${import.meta.env.BASE_URL}images/logo-redrys-uagro.png`} />
 
@@ -54,7 +91,9 @@ const formattedTitle = title === 'Inicio'
     <meta property="og:title" content={formattedTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={absoluteOgImage} />
-    <meta property="og:image:alt" content="Sitio oficial de la REDRYS" />
+    <meta property="og:image:width" content="1600" />
+    <meta property="og:image:height" content="1280" />
+    <meta property="og:image:alt" content={`${site.name} — ${site.fullName}`} />
     <meta property="og:site_name" content="REDRYS" />
     <meta property="og:locale" content="es_MX" />
 
@@ -64,7 +103,7 @@ const formattedTitle = title === 'Inicio'
     <meta name="twitter:title" content={formattedTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={absoluteOgImage} />
-    <meta name="twitter:image:alt" content="Sitio oficial de la REDRYS" />
+    <meta name="twitter:image:alt" content={`${site.name} — ${site.fullName}`} />
 
     <!-- Conexiones rápidas de Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -74,47 +113,19 @@ const formattedTitle = title === 'Inicio'
       rel="stylesheet"
     />
 
-    <!-- Marcado de Datos Estructurados Schema.org (JSON-LD) para Organizaciones Académicas -->
-    <script type="application/ld+json" is:inline>
-      {
-        "@context": "https://schema.org",
-        "@type": "EducationalOrganization",
-        "name": "Red de Educación para el Desarrollo Regional y Sostenible",
-        "alternateName": "REDRYS",
-        "url": "https://redrys.org",
-        "logo": "https://redrys.org/images/logo-redrys-uagro.png",
-        "description": "Una red académica adscrita a la Universidad Autónoma de Guerrero dedicada a impulsar el desarrollo regional y sostenible a través de la investigación aplicada.",
-        "parentOrganization": {
-          "@type": "EducationalOrganization",
-          "name": "Universidad Autónoma de Guerrero",
-          "url": "https://uagro.mx"
-        },
-        "founder": {
-          "@type": "Person",
-          "name": "Dr. Rubén Hernández Chavarría"
-        },
-        "foundingDate": "2024-10-28",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "Edificio de Posgrado, Facultad de Contaduría y Administración",
-          "addressLocality": "Acapulco",
-          "addressRegion": "Guerrero",
-          "addressCountry": "MX"
-        },
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "telephone": "+52-7441069320",
-          "contactType": "Coordinación",
-          "email": "redrys@uagro.mx"
-        }
-      }
-    </script>
+    <!-- Datos estructurados Schema.org (JSON-LD) -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
   </head>
   <body>
     <a href="#main-content" class="skip-link">Ir al contenido principal</a>
     <div class="bg-arc"></div>
     <Header />
     <main id="main-content">
+      {breadcrumbs?.length ? (
+        <div class="container">
+          <Breadcrumbs items={breadcrumbs} />
+        </div>
+      ) : null}
       <slot />
     </main>
     <Footer />

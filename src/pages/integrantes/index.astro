@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import MemberCard from '../../components/MemberCard.astro';
+import { integrantes, integrantesConPerfil } from '../../data/integrantes';
+import { site } from '../../data/site';
+
+const base = import.meta.env.BASE_URL;
+const totalIntegrantes = integrantes.length;
+const fca = integrantes.filter((integrante) => integrante.dependency === 'FCA');
+const facom = integrantes.filter((integrante) => integrante.dependency === 'FACOM');
+const conPerfil = integrantesConPerfil.length;
+---
+
+<BaseLayout
+  title="Integrantes"
+  seoTitle="Integrantes fundadores de REDRYS — UAGro, Acapulco"
+  description={`Directorio de los ${totalIntegrantes} miembros fundadores de la REDRYS, profesores-investigadores adscritos a la Facultad de Contaduría y Administración y a la Facultad de Comunicación de la UAGro.`}
+  breadcrumbs={[{ label: 'Integrantes', href: '/integrantes/' }]}
+>
+  <section class="page-section container">
+    <SectionTitle
+      label="REDRYS"
+      title="Integrantes fundadores"
+      subtitle={`La red fue constituida el ${site.founded} por ${totalIntegrantes} miembros fundadores adscritos a la Facultad de Contaduría y Administración y a la Facultad de Comunicación de la Universidad Autónoma de Guerrero.`}
+    />
+
+    <div class="content-block">
+      <p class="content-block__text">
+        El Artículo 4 del <a href={`${base}documentos/reglamento/`}>reglamento</a>
+        reconoce tres tipos de miembros: profesores-investigadores de la UAGro con
+        líneas de investigación afines, estudiantes de posgrado con proyectos
+        alineados a los objetivos de la red, y colaboradores externos aprobados por
+        el Comité Académico. Este directorio publica a los miembros fundadores.
+        {conPerfil > 0 && ` ${conPerfil} de ellos cuentan con una página de perfil académico.`}
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">
+        Facultad de Contaduría y Administración
+        <span class="content-block__count">{fca.length}</span>
+      </h2>
+      <ul class="cards-grid cards-grid--3">
+        {fca.map((member) => (
+          <li>
+            <MemberCard
+              name={member.name}
+              dependency="FCA"
+              role={member.role}
+              grado={member.grado}
+              slug={member.slug}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">
+        Facultad de Comunicación
+        <span class="content-block__count">{facom.length}</span>
+      </h2>
+      <ul class="cards-grid cards-grid--3">
+        {facom.map((member) => (
+          <li>
+            <MemberCard
+              name={member.name}
+              dependency="FACOM"
+              role={member.role}
+              grado={member.grado}
+              slug={member.slug}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Incorporarse a la red</h2>
+      <p class="content-block__text">
+        Las solicitudes de incorporación se presentan por escrito con currículum
+        vitae y carta de intención, y las evalúa el Comité Académico. El
+        procedimiento completo está en
+        <a href={`${base}colaborar/`}>Colaborar con la REDRYS</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,18 +1,24 @@
 const APEX_HOST = 'redrys.org';
 const TEMPORARY_HOST_SUFFIX = '.chatgpt.site';
-const GENERATED_TEXT_ASSETS = new Map(/* __GENERATED_TEXT_ASSETS__ */);
 
-const PAGE_ASSETS = new Map([
-  ['/', '/index.html'],
-  ['/la-red/', '/la-red/index.html'],
-  ['/objetivos/', '/objetivos/index.html'],
-  ['/integrantes/', '/integrantes/index.html'],
-  ['/contacto/', '/contacto/index.html'],
-  ['/galeria/', '/galeria/index.html'],
-  ['/repositorio/', '/repositorio/index.html'],
-]);
+/**
+ * `scripts/prepare-sites-build.mjs` sustituye estos marcadores por el
+ * contenido y las rutas que produjo Astro. En el código fuente permanecen
+ * vacíos: las rutas no se mantienen a mano, se derivan del build.
+ */
+const GENERATED_TEXT_ASSETS = new Map(/* __GENERATED_TEXT_ASSETS__ */);
+const GENERATED_PAGE_ROUTES = [/* __GENERATED_PAGE_ROUTES__ */];
 
 const INTERNAL_PREFIXES = ['/server/', '/.openai/'];
+
+function pageAssetsFrom(routes) {
+  return new Map(
+    routes.map((route) => [
+      route,
+      route === '/' ? '/index.html' : `${route}index.html`,
+    ]),
+  );
+}
 
 function isTemporaryHost(hostname) {
   return hostname === 'chatgpt.site' || hostname.endsWith(TEMPORARY_HOST_SUFFIX);
@@ -20,15 +26,6 @@ function isTemporaryHost(hostname) {
 
 function isInternalPath(pathname) {
   return INTERNAL_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-}
-
-function canonicalPagePath(pathname) {
-  if (pathname === '/' || pathname.endsWith('/')) {
-    return null;
-  }
-
-  const withSlash = `${pathname}/`;
-  return PAGE_ASSETS.has(withSlash) ? withSlash : null;
 }
 
 function redirectResponse(url, status = 308) {
@@ -89,59 +86,78 @@ async function customNotFound(request, env) {
   );
 }
 
-const worker = {
-  async fetch(request, env) {
-    if (request.method !== 'GET' && request.method !== 'HEAD') {
-      return new Response('Method Not Allowed', {
-        status: 405,
-        headers: { Allow: 'GET, HEAD' },
-      });
+/**
+ * Crea el Worker de entrega. `pageRoutes` se inyecta para poder probar el
+ * comportamiento sin depender del artefacto generado.
+ */
+export function createWorker({ pageRoutes = GENERATED_PAGE_ROUTES } = {}) {
+  const pageAssets = pageAssetsFrom(pageRoutes);
+
+  function canonicalPagePath(pathname) {
+    if (pathname === '/' || pathname.endsWith('/')) {
+      return null;
     }
 
-    const url = new URL(request.url);
-    const temporaryHost = isTemporaryHost(url.hostname);
+    const withSlash = `${pathname}/`;
+    return pageAssets.has(withSlash) ? withSlash : null;
+  }
 
-    if (url.hostname === `www.${APEX_HOST}`) {
-      url.protocol = 'https:';
-      url.hostname = APEX_HOST;
-      return redirectResponse(url);
-    }
+  return {
+    async fetch(request, env) {
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'GET, HEAD' },
+        });
+      }
 
-    const normalizedPagePath = canonicalPagePath(url.pathname);
-    if (normalizedPagePath) {
-      url.pathname = normalizedPagePath;
-      return redirectResponse(url);
-    }
+      const url = new URL(request.url);
+      const temporaryHost = isTemporaryHost(url.hostname);
 
-    if (temporaryHost && url.pathname === '/robots.txt') {
-      return addResponseHeaders(
-        new Response('User-agent: *\nDisallow: /\n', {
-          status: 200,
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-        }),
-        { noindex: true },
-      );
-    }
+      if (url.hostname === `www.${APEX_HOST}`) {
+        url.protocol = 'https:';
+        url.hostname = APEX_HOST;
+        return redirectResponse(url);
+      }
 
-    if (isInternalPath(url.pathname)) {
-      return customNotFound(request, env);
-    }
+      const normalizedPagePath = canonicalPagePath(url.pathname);
+      if (normalizedPagePath) {
+        url.pathname = normalizedPagePath;
+        return redirectResponse(url);
+      }
 
-    const assetPath = PAGE_ASSETS.get(url.pathname) ?? url.pathname;
-    const response = await fetchAsset(request, env, assetPath);
+      if (temporaryHost && url.pathname === '/robots.txt') {
+        return addResponseHeaders(
+          new Response('User-agent: *\nDisallow: /\n', {
+            status: 200,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          }),
+          { noindex: true },
+        );
+      }
 
-    if (response.status === 404) {
-      const acceptsHTML = request.headers.get('Accept')?.includes('text/html');
-      const pathHasExtension = /\/[^/]+\.[^/]+$/.test(url.pathname);
-
-      if (acceptsHTML || !pathHasExtension) {
+      if (isInternalPath(url.pathname)) {
         return customNotFound(request, env);
       }
-    }
 
-    return addResponseHeaders(response, { noindex: temporaryHost });
-  },
-};
+      const assetPath = pageAssets.get(url.pathname) ?? url.pathname;
+      const response = await fetchAsset(request, env, assetPath);
 
-export { GENERATED_TEXT_ASSETS, PAGE_ASSETS, isTemporaryHost };
+      if (response.status === 404) {
+        const acceptsHTML = request.headers.get('Accept')?.includes('text/html');
+        const pathHasExtension = /\/[^/]+\.[^/]+$/.test(url.pathname);
+
+        if (acceptsHTML || !pathHasExtension) {
+          return customNotFound(request, env);
+        }
+      }
+
+      return addResponseHeaders(response, { noindex: temporaryHost });
+    },
+  };
+}
+
+const worker = createWorker();
+
+export { GENERATED_TEXT_ASSETS, GENERATED_PAGE_ROUTES, isTemporaryHost };
 export default worker;

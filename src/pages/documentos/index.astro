@@ -1,0 +1,110 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const documentos = (await getCollection('documentos')).sort(
+  (a, b) => a.data.orden - b.data.orden,
+);
+
+const ultimaActualizacion = documentos
+  .map((documento) => documento.data.actualizado.toISOString().slice(0, 10))
+  .sort()
+  .at(-1);
+---
+
+<BaseLayout
+  title="Documentos"
+  seoTitle="Documentos fundacionales de REDRYS — Acta y reglamento"
+  description="Documentos fundacionales de la REDRYS: acta de creación del 28 de octubre de 2024 y reglamento interno, consultables en HTML y descargables en PDF."
+  breadcrumbs={[{ label: 'Documentos', href: '/documentos/' }]}
+  dateModified={ultimaActualizacion}
+>
+  <section class="page-section container">
+    <SectionTitle
+      label="REDRYS"
+      title="Documentos fundacionales"
+      subtitle="El acta de creación y el reglamento son las fuentes institucionales primarias de la red. Esta sección los presenta en formato consultable y accesible, además del archivo original."
+    />
+
+    <ul class="document-index">
+      {documentos.map((documento) => (
+        <li class="document-index__item">
+          <article class="document-index__card">
+            <p class="document-index__type">{documento.data.tipo}</p>
+            <h2 class="document-index__title">
+              <a href={`${base}documentos/${documento.id}/`}>{documento.data.tituloCorto}</a>
+            </h2>
+            <p class="document-index__summary">{documento.data.resumen}</p>
+            <p class="document-index__meta">
+              {documento.data.textoIntegro
+                ? 'Texto íntegro disponible en HTML'
+                : 'Resumen institucional en HTML'}
+              {documento.data.archivo && ` · PDF ${documento.data.archivoTamano}`}
+            </p>
+          </article>
+        </li>
+      ))}
+    </ul>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Relación entre ambos documentos</h2>
+      <p class="content-block__text">
+        El acta de creación es el documento constitutivo: formaliza la existencia de
+        la red, fija su fecha de constitución, su sede y su objetivo general, y
+        registra a sus miembros fundadores. El reglamento es la norma interna que
+        desarrolla ese acuerdo: define los tipos de miembros, los requisitos de
+        admisión, la estructura organizativa, las comisiones de trabajo y las reglas
+        de funcionamiento de los proyectos y las publicaciones.
+      </p>
+      <p class="content-block__text">
+        Cuando el contenido publicado en este sitio se aparta de lo que dicen estos
+        documentos, prevalecen los documentos. Cualquier diferencia se registra como
+        un asunto pendiente de confirmación por la coordinación de la red, y no se
+        resuelve por inferencia.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Por qué existen estas páginas</h2>
+      <p class="content-block__text">
+        Un documento publicado únicamente como PDF es difícil de consultar, no
+        siempre es accesible para lectores de pantalla y no puede enlazarse por
+        secciones. Estas páginas presentan el contenido institucional en HTML y
+        conservan el archivo original como descarga, de modo que el carácter
+        documental se mantenga sin sacrificar la accesibilidad.
+      </p>
+      <p class="content-block__text">
+        Las páginas indican siempre si reproducen el texto íntegro del documento o
+        únicamente un resumen de sus datos institucionales, y cada una declara su
+        procedencia y la fecha de su última revisión.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Otros contenidos relacionados</h2>
+      <ul class="related-list">
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}objetivos/`}>Objetivos de la Red</a>
+          <span class="related-list__summary">
+            Objetivo general del acta y objetivos específicos del reglamento.
+          </span>
+        </li>
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}lineas-investigacion/`}>Líneas de investigación</a>
+          <span class="related-list__summary">
+            Las tres líneas establecidas en el Artículo 1 del reglamento.
+          </span>
+        </li>
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}colaborar/`}>Colaborar con la REDRYS</a>
+          <span class="related-list__summary">
+            Requisitos de admisión, derechos y obligaciones de los integrantes.
+          </span>
+        </li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

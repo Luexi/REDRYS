@@ -1,11 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout
   title="Página no encontrada"
   description="La página solicitada no existe en el sitio de la REDRYS."
   noindex={true}
+  noCanonical={true}
 >
   <section class="page-section container">
     <div class="page-placeholder">
@@ -15,8 +18,34 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         La dirección solicitada no existe o fue escrita incorrectamente.
       </p>
       <div style="margin-top: 2rem;">
-        <a class="btn btn--primary" href="/">Volver al inicio</a>
+        <a class="btn btn--primary" href={base}>Volver al inicio</a>
       </div>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Secciones del sitio</h2>
+      <ul class="related-list">
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}la-red/`}>La Red</a>
+          <span class="related-list__summary">Naturaleza, estructura y comisiones.</span>
+        </li>
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}lineas-investigacion/`}>Líneas de investigación</a>
+          <span class="related-list__summary">Las tres líneas de incidencia social de la red.</span>
+        </li>
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}integrantes/`}>Integrantes</a>
+          <span class="related-list__summary">Directorio de miembros fundadores.</span>
+        </li>
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}documentos/`}>Documentos</a>
+          <span class="related-list__summary">Acta de creación y reglamento.</span>
+        </li>
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}contacto/`}>Contacto</a>
+          <span class="related-list__summary">Correo, teléfono y sede.</span>
+        </li>
+      </ul>
     </div>
   </section>
 </BaseLayout>

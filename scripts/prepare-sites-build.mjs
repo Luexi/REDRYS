@@ -7,7 +7,7 @@ import {
   rm,
   writeFile,
 } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname, posix, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
@@ -18,29 +18,47 @@ const serverDirectory = resolve(distDirectory, 'server');
 const distOpenAIDirectory = resolve(distDirectory, '.openai');
 const sourceHostingPath = resolve(projectRoot, '.openai', 'hosting.json');
 const sourceWorkerPath = resolve(projectRoot, 'sites', 'worker.mjs');
-const generatedAssetMarker = '/* __GENERATED_TEXT_ASSETS__ */';
 
-const textAssetSpecs = [
-  ['/index.html', 'index.html', 'text/html; charset=utf-8'],
-  ['/la-red/index.html', 'la-red/index.html', 'text/html; charset=utf-8'],
-  ['/objetivos/index.html', 'objetivos/index.html', 'text/html; charset=utf-8'],
-  [
-    '/integrantes/index.html',
-    'integrantes/index.html',
-    'text/html; charset=utf-8',
-  ],
-  ['/contacto/index.html', 'contacto/index.html', 'text/html; charset=utf-8'],
-  ['/galeria/index.html', 'galeria/index.html', 'text/html; charset=utf-8'],
-  [
-    '/repositorio/index.html',
-    'repositorio/index.html',
-    'text/html; charset=utf-8',
-  ],
-  ['/404.html', '404.html', 'text/html; charset=utf-8'],
-  ['/robots.txt', 'robots.txt', 'text/plain; charset=utf-8'],
-  ['/sitemap-index.xml', 'sitemap-index.xml', 'text/xml; charset=utf-8'],
-  ['/sitemap-0.xml', 'sitemap-0.xml', 'text/xml; charset=utf-8'],
+const textAssetsMarker = '/* __GENERATED_TEXT_ASSETS__ */';
+const pageRoutesMarker = '/* __GENERATED_PAGE_ROUTES__ */';
+
+/** Archivos de texto generados por Astro que el Worker sirve directamente. */
+const ROOT_TEXT_ASSETS = [
+  ['robots.txt', 'text/plain; charset=utf-8'],
+  ['sitemap-index.xml', 'text/xml; charset=utf-8'],
+  ['sitemap-0.xml', 'text/xml; charset=utf-8'],
 ];
+
+/** Directorios de `dist/` que no forman parte del contenido publicado. */
+const NON_CONTENT_ENTRIES = new Set(['client', 'server', '.openai']);
+
+/**
+ * Recorre `dist/` y devuelve todas las páginas HTML generadas por Astro. Las
+ * rutas no se mantienen a mano: añadir una página nueva a `src/pages/` basta
+ * para que quede incluida en el artefacto de Sites.
+ */
+async function collectHtmlFiles(directory) {
+  const found = [];
+
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    if (NON_CONTENT_ENTRIES.has(entry.name)) {
+      continue;
+    }
+
+    const entryPath = resolve(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      found.push(...(await collectHtmlFiles(entryPath)));
+      continue;
+    }
+
+    if (entry.name.endsWith('.html')) {
+      found.push(relative(distDirectory, entryPath).split(sep).join(posix.sep));
+    }
+  }
+
+  return found;
+}
 
 const hosting = JSON.parse(await readFile(sourceHostingPath, 'utf8'));
 const allowedKeys = new Set(['project_id', 'd1', 'r2']);
@@ -52,6 +70,26 @@ if (unexpectedKeys.length > 0) {
   );
 }
 
+const htmlFiles = (await collectHtmlFiles(distDirectory)).sort();
+
+if (!htmlFiles.includes('index.html') || !htmlFiles.includes('404.html')) {
+  throw new Error('The Astro build is missing index.html or 404.html.');
+}
+
+/**
+ * Toda página `x/index.html` corresponde a la ruta pública `/x/`. `404.html` no
+ * es una ruta pública: el Worker la sirve como respuesta de error.
+ */
+const pageRoutes = htmlFiles
+  .filter((file) => file === 'index.html' || file.endsWith('/index.html'))
+  .map((file) => (file === 'index.html' ? '/' : `/${file.slice(0, -'index.html'.length)}`))
+  .sort();
+
+const textAssetSpecs = [
+  ...htmlFiles.map((file) => [`/${file}`, file, 'text/html; charset=utf-8']),
+  ...ROOT_TEXT_ASSETS.map(([file, contentType]) => [`/${file}`, file, contentType]),
+];
+
 const generatedTextAssets = await Promise.all(
   textAssetSpecs.map(async ([publicPath, sourcePath, contentType]) => [
     publicPath,
@@ -61,32 +99,42 @@ const generatedTextAssets = await Promise.all(
     },
   ]),
 );
+
 const workerSource = await readFile(sourceWorkerPath, 'utf8');
 
-if (!workerSource.includes(generatedAssetMarker)) {
-  throw new Error('The Sites worker is missing its generated asset marker.');
+for (const marker of [textAssetsMarker, pageRoutesMarker]) {
+  if (!workerSource.includes(marker)) {
+    throw new Error(`The Sites worker is missing the marker ${marker}.`);
+  }
 }
 
-const builtWorker = workerSource.replace(
-  generatedAssetMarker,
-  JSON.stringify(generatedTextAssets),
-);
+const builtWorker = workerSource
+  .replace(textAssetsMarker, JSON.stringify(generatedTextAssets))
+  .replace(pageRoutesMarker, JSON.stringify(pageRoutes).slice(1, -1));
 
-for (const target of [
-  'index.html',
-  '404.html',
-  'robots.txt',
-  'sitemap-index.xml',
-  'sitemap-0.xml',
+/** Recursos que sirve el Worker y que no deben quedar sueltos en `client/`. */
+const workerServedFiles = [
+  ...htmlFiles,
+  ...ROOT_TEXT_ASSETS.map(([file]) => file),
   'CNAME',
-  'la-red',
-  'objetivos',
-  'integrantes',
-  'contacto',
-  'galeria',
-  'repositorio',
-]) {
+];
+
+for (const target of workerServedFiles) {
   await rm(resolve(distDirectory, target), { recursive: true, force: true });
+}
+
+/** Directorios que quedaron vacíos tras retirar sus `index.html`. */
+for (const route of pageRoutes) {
+  if (route === '/') {
+    continue;
+  }
+
+  const directory = resolve(distDirectory, route.slice(1, -1));
+  const remaining = await readdir(directory).catch(() => null);
+
+  if (remaining && remaining.length === 0) {
+    await rm(directory, { recursive: true, force: true });
+  }
 }
 
 await rm(serverDirectory, { recursive: true, force: true });
@@ -95,7 +143,7 @@ await rm(clientDirectory, { recursive: true, force: true });
 await mkdir(clientDirectory, { recursive: true });
 
 for (const entry of await readdir(distDirectory, { withFileTypes: true })) {
-  if (['client', 'server', '.openai'].includes(entry.name)) {
+  if (NON_CONTENT_ENTRIES.has(entry.name)) {
     continue;
   }
 
@@ -112,5 +160,6 @@ await writeFile(resolve(serverDirectory, 'index.js'), builtWorker, 'utf8');
 await copyFile(sourceHostingPath, resolve(distOpenAIDirectory, 'hosting.json'));
 
 console.log(
-  'Prepared dist/client, dist/server/index.js and dist/.openai/hosting.json for Sites.',
+  `Prepared ${pageRoutes.length} routes and ${generatedTextAssets.length} text assets ` +
+    'into dist/client, dist/server/index.js and dist/.openai/hosting.json.',
 );

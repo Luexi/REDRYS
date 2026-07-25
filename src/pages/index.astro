@@ -1,14 +1,24 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+import { integrantes } from '../data/integrantes';
 
 const base = import.meta.env.BASE_URL;
+const totalIntegrantes = integrantes.length;
+
+const lineas = (await getCollection('lineas')).sort(
+  (a, b) => a.data.orden - b.data.orden,
+);
 ---
 
-<BaseLayout title="Inicio" description="REDRYS — Red de Educación para el Desarrollo Regional y Sostenible. Una red académica para pensar, vincular y transformar el desarrollo regional.">
-
+<BaseLayout
+  title="Inicio"
+  seoTitle="REDRYS — Red de Educación para el Desarrollo Regional y Sostenible"
+  description="REDRYS es la Red de Educación para el Desarrollo Regional y Sostenible de la Facultad de Contaduría y Administración de la UAGro, en Acapulco, Guerrero. Investigación aplicada con impacto social en desarrollo regional, cultura tributaria y políticas públicas."
+>
   <section class="hero container">
     <div class="hero__grid">
-      <!-- Hero Content (Left Column) -->
       <div class="hero__content">
         <div class="hero__eyebrow">
           <span class="hero__eyebrow-line"></span>
@@ -16,45 +26,63 @@ const base = import.meta.env.BASE_URL;
         </div>
 
         <h1 class="hero__headline">
-          Una red académica para pensar, vincular y transformar el desarrollo regional
+          REDRYS: red académica de la UAGro para el desarrollo regional y sostenible
+          en Guerrero
         </h1>
 
         <p class="hero__summary">
-          REDRYS reúne a profesores-investigadores, estudiantes de posgrado y colaboradores
-          para impulsar investigación aplicada, difusión del conocimiento y soluciones
-          con impacto social.
+          La Red de Educación para el Desarrollo Regional y Sostenible es un espacio
+          académico multidisciplinario de la Facultad de Contaduría y Administración
+          de la Universidad Autónoma de Guerrero. Reúne a profesores-investigadores,
+          estudiantes de posgrado y colaboradores externos para promover la
+          investigación aplicada con impacto social en el estado.
         </p>
 
         <div class="hero__cta-row">
-          <a class="btn btn--primary" href={`${base}la-red/`}>
-            Conoce la red
+          <a class="btn btn--primary" href={`${base}la-red/`}>Conoce la red</a>
+          <a class="btn btn--ghost" href={`${base}lineas-investigacion/`}>
+            Líneas de investigación
           </a>
-          <div class="hero__attribution">
-            <span class="hero__attribution-label">Adscripción</span>
-            <span class="hero__attribution-value">Facultad de Contaduría y Administración · UAGro</span>
-          </div>
         </div>
+
+        <p class="hero__attribution">
+          <span class="hero__attribution-label">Adscripción</span>
+          <span class="hero__attribution-value">
+            {site.faculty} · {site.institution} · Acapulco, Guerrero
+          </span>
+        </p>
       </div>
 
-      <!-- Editorial Layout (Right Column) -->
       <div class="hero__editorial">
-        <div class="hero__editorial-grid">
-          <div class="hero__img-primary">
-            <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&h=800&fit=crop" alt="Investigación académica" class="hero-img" style="aspect-ratio: 3/4;" />
-          </div>
+        <div class="academic-card hero__academic-card">
+          <img
+            src={`${base}images/logo-redrys-uagro.png`}
+            alt="Logotipo de la REDRYS y la Universidad Autónoma de Guerrero"
+            class="card-logo"
+            width="64"
+            height="64"
+          />
+          <p class="card-title">Red académica multidisciplinaria</p>
+          <div class="thin-rule" style="margin-top: 1rem;"></div>
 
-          <div class="hero__img-secondary-wrap">
-            <div class="hero__img-secondary">
-              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=480&h=600&fit=crop" alt="Colaboración universitaria" class="hero-img" style="aspect-ratio: 4/5;" />
+          <dl class="hero__facts">
+            <div class="hero__fact">
+              <dt class="hero__fact-label">Constituida</dt>
+              <dd class="hero__fact-value">28 de octubre de 2024</dd>
             </div>
-
-            <div class="academic-card hero__academic-card">
-              <img src={`${base}images/logo-redrys-uagro.png`} alt="Logo REDRYS" class="card-logo" width="64" height="64" />
-              <p class="card-title">Red académica multidisciplinaria</p>
-              <div class="thin-rule" style="margin-top: 1rem;"></div>
-              <p class="card-caption">Fundada en rigor científico</p>
+            <div class="hero__fact">
+              <dt class="hero__fact-label">Miembros fundadores</dt>
+              <dd class="hero__fact-value">{totalIntegrantes}</dd>
             </div>
-          </div>
+            <div class="hero__fact">
+              <dt class="hero__fact-label">Líneas de investigación</dt>
+              <dd class="hero__fact-value">{lineas.length}</dd>
+            </div>
+            <div class="hero__fact">
+              <dt class="hero__fact-label">Sede</dt>
+              <dd class="hero__fact-value">Edificio de Posgrado, FCA-UAGro</dd>
+            </div>
+          </dl>
         </div>
 
         <div class="hero__decorative-corner"></div>
@@ -62,4 +90,113 @@ const base = import.meta.env.BASE_URL;
     </div>
   </section>
 
+  <section class="page-section container">
+    <div class="content-block">
+      <h2 class="content-block__title">Qué es la REDRYS</h2>
+      <p class="content-block__text">
+        La REDRYS se constituyó formalmente el 28 de octubre de 2024 en Acapulco de
+        Juárez, Guerrero, con {totalIntegrantes} miembros fundadores. Su reglamento
+        la define como un espacio académico multidisciplinario integrado por
+        profesores-investigadores y estudiantes de posgrado, cuyo fin es promover la
+        investigación aplicada con impacto social en las áreas de ciencias sociales y
+        económico-administrativas.
+      </p>
+      <p class="content-block__text">
+        Su objetivo general es impulsar campos de estudio con incidencia social en el
+        estado de Guerrero, articulando las capacidades académicas presentes en los
+        espacios universitarios donde se desarrolla investigación aplicada o de
+        frontera. Ese propósito se concreta en cuatro
+        <a href={`${base}objetivos/`}>objetivos específicos</a> y en tres líneas de
+        investigación e incidencia social.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Líneas de investigación</h2>
+      <p class="content-block__text">
+        Cada línea organiza proyectos, formación de investigadores y difusión de
+        resultados dentro de la red.
+      </p>
+      <ul class="cards-grid" style="margin-top: 1.5rem;">
+        {lineas.map((linea) => (
+          <li>
+            <article class="line-card">
+              <div class="line-card__icon" aria-hidden="true"></div>
+              <h3 class="line-card__title">
+                <a href={`${base}lineas-investigacion/${linea.id}/`}>{linea.data.titulo}</a>
+              </h3>
+              <p class="line-card__description">{linea.data.resumen}</p>
+            </article>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Cómo trabaja la red</h2>
+      <p class="content-block__text">
+        El reglamento de la REDRYS fija tres condiciones que ordenan toda su
+        actividad de investigación:
+      </p>
+      <ul class="feature-list">
+        <li class="feature-list__item">
+          <span class="feature-list__term">Formación en el proceso</span>
+          <span class="feature-list__text">
+            Todo proyecto integra al menos un profesor-investigador y dos estudiantes
+            de posgrado.
+          </span>
+        </li>
+        <li class="feature-list__item">
+          <span class="feature-list__term">Impacto social evaluado</span>
+          <span class="feature-list__text">
+            Ningún proyecto se aprueba sin una evaluación de su impacto social.
+          </span>
+        </li>
+        <li class="feature-list__item">
+          <span class="feature-list__term">Acceso abierto</span>
+          <span class="feature-list__text">
+            Los resultados se divulgan en acceso abierto citando la afiliación
+            REDRYS/UAGro.
+          </span>
+        </li>
+      </ul>
+      <p class="content-block__text">
+        La red se organiza mediante un Comité Académico de cinco miembros y cuatro
+        comisiones de trabajo: investigación, vinculación, difusión y formación.
+        Consulta la <a href={`${base}la-red/`}>estructura completa de la red</a> o el
+        <a href={`${base}documentos/reglamento/`}>texto íntegro del reglamento</a>.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Explorar el sitio</h2>
+      <ul class="related-list">
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}integrantes/`}>Integrantes</a>
+          <span class="related-list__summary">
+            Directorio de los {totalIntegrantes} miembros fundadores y sus perfiles
+            académicos.
+          </span>
+        </li>
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}documentos/`}>Documentos fundacionales</a>
+          <span class="related-list__summary">
+            Acta de creación y reglamento, consultables en HTML y descargables en PDF.
+          </span>
+        </li>
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}colaborar/`}>Colaborar con la REDRYS</a>
+          <span class="related-list__summary">
+            Requisitos de incorporación y vías de vinculación institucional.
+          </span>
+        </li>
+        <li class="related-list__item">
+          <a class="related-list__link" href={`${base}contacto/`}>Contacto</a>
+          <span class="related-list__summary">
+            Correo, teléfono y sede de la red en Acapulco de Juárez.
+          </span>
+        </li>
+      </ul>
+    </div>
+  </section>
 </BaseLayout>

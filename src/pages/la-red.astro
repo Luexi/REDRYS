@@ -1,128 +1,178 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import { site } from '../data/site';
-import { lineas } from '../data/lineas';
 import { integrantes } from '../data/integrantes';
 
 const base = import.meta.env.BASE_URL;
 const totalIntegrantes = integrantes.length;
+
+const lineas = (await getCollection('lineas')).sort(
+  (a, b) => a.data.orden - b.data.orden,
+);
+const documentos = (await getCollection('documentos')).sort(
+  (a, b) => a.data.orden - b.data.orden,
+);
+
+const comisiones = [
+  {
+    nombre: 'Investigación',
+    descripcion: 'Coordina los proyectos y su evaluación de impacto social.',
+  },
+  {
+    nombre: 'Vinculación',
+    descripcion: 'Gestiona la relación con actores sociales, gubernamentales y empresariales.',
+  },
+  {
+    nombre: 'Difusión',
+    descripcion: 'Organiza publicaciones, foros y capacitaciones.',
+  },
+  {
+    nombre: 'Formación',
+    descripcion: 'Atiende la formación de recursos humanos especializados.',
+  },
+];
 ---
 
-<BaseLayout title="La Red" description="Conoce la Red de Educación para el Desarrollo Regional y Sostenible (REDRYS), su naturaleza, estructura y líneas de investigación.">
-
+<BaseLayout
+  title="La Red"
+  seoTitle="La Red — Naturaleza y estructura de REDRYS, FCA-UAGro"
+  description="Naturaleza, contexto de creación, estructura organizativa, comisiones de trabajo y sede de la REDRYS, red académica de la Facultad de Contaduría y Administración de la UAGro en Acapulco, Guerrero."
+  breadcrumbs={[{ label: 'La Red', href: '/la-red/' }]}
+>
   <section class="page-section container">
     <SectionTitle
       label="REDRYS"
-      title="La Red"
-      subtitle="Red de Educación para el Desarrollo Regional y Sostenible"
+      title="La Red de Educación para el Desarrollo Regional y Sostenible"
+      subtitle="Espacio académico multidisciplinario de la Facultad de Contaduría y Administración de la Universidad Autónoma de Guerrero."
     />
 
-    <!-- Naturaleza -->
     <div class="content-block">
       <h2 class="content-block__title">Naturaleza de la Red</h2>
       <p class="content-block__text">
-        La REDRYS es una red académica de investigación adscrita a la {site.faculty} de la {site.institution},
-        orientada a impulsar campos de estudio con incidencia social en el estado de Guerrero.
-        Reúne a profesores-investigadores, estudiantes de posgrado y colaboradores externos
-        para articular esfuerzos de investigación aplicada y de frontera.
+        El Artículo 1 del <a href={`${base}documentos/reglamento/`}>reglamento</a>
+        define a la REDRYS como un espacio académico multidisciplinario integrado por
+        profesores-investigadores y estudiantes de posgrado de la {site.faculty} de
+        la {site.institution}, cuyo fin es promover la investigación aplicada con
+        impacto social en las áreas de ciencias sociales y económico-administrativas.
+      </p>
+      <p class="content-block__text">
+        La red no es un programa educativo ni una dependencia administrativa: es una
+        estructura de colaboración que articula capacidades de investigación ya
+        existentes en la universidad en torno a tres
+        <a href={`${base}lineas-investigacion/`}>líneas de investigación e incidencia
+        social</a>.
       </p>
     </div>
 
-    <!-- Contexto de creación -->
     <div class="content-block">
       <h2 class="content-block__title">Contexto de creación</h2>
       <p class="content-block__text">
-        La red fue constituida formalmente el {site.founded} en la Ciudad de Acapulco, Guerrero,
-        con la participación de {totalIntegrantes} miembros fundadores provenientes principalmente de la FCA
-        y la FACOM de la UAGro. Su vigencia inicial es de tres años, sujeta a evaluación
-        anual de resultados.
+        La red fue constituida formalmente el {site.founded} en Acapulco de Juárez,
+        Guerrero, con {totalIntegrantes} miembros fundadores provenientes de la
+        Facultad de Contaduría y Administración y de la Facultad de Comunicación de
+        la UAGro. Los datos de constitución están registrados en el
+        <a href={`${base}documentos/acta-de-creacion/`}>acta de creación</a>.
       </p>
     </div>
 
-    <!-- Líneas de investigación -->
     <div class="content-block">
       <h2 class="content-block__title">Líneas de investigación</h2>
       <p class="content-block__text">
-        La REDRYS cultiva tres líneas principales de investigación e incidencia:
+        La REDRYS cultiva tres líneas principales de investigación e incidencia
+        social. Cada una cuenta con una página propia donde se describe su objeto de
+        estudio, su relevancia para Guerrero y su forma de trabajo.
       </p>
-      <div class="cards-grid" style="margin-top: 1.5rem;">
+      <ul class="cards-grid" style="margin-top: 1.5rem;">
         {lineas.map((linea) => (
-          <div class="line-card">
-            <div class="line-card__icon"></div>
-            <h3 class="line-card__title">{linea.title}</h3>
-            <p class="line-card__description">{linea.description}</p>
-          </div>
+          <li>
+            <article class="line-card">
+              <div class="line-card__icon" aria-hidden="true"></div>
+              <h3 class="line-card__title">
+                <a href={`${base}lineas-investigacion/${linea.id}/`}>{linea.data.titulo}</a>
+              </h3>
+              <p class="line-card__description">{linea.data.resumen}</p>
+            </article>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
 
-    <!-- Estructura organizativa -->
+    <div class="content-block">
+      <h2 class="content-block__title">Tipos de integrantes</h2>
+      <p class="content-block__text">
+        El Artículo 4 del reglamento reconoce tres tipos de miembros:
+        profesores-investigadores de la UAGro con líneas de investigación afines,
+        estudiantes de posgrado con proyectos alineados a los objetivos de la red, y
+        colaboradores externos —instituciones o especialistas invitados— aprobados por
+        el Comité Académico. Consulta el
+        <a href={`${base}integrantes/`}>directorio de integrantes</a> o los
+        <a href={`${base}colaborar/`}>requisitos de incorporación</a>.
+      </p>
+    </div>
+
     <div class="content-block">
       <h2 class="content-block__title">Estructura organizativa</h2>
       <div class="structure-grid">
-        <div class="structure-item">
+        <article class="structure-item">
           <h3 class="structure-item__title">Comité Académico</h3>
           <p class="structure-item__text">
-            Integrado por 5 miembros (3 profesores-investigadores y 2 estudiantes de posgrado).
-            Aprueba proyectos, admite nuevos integrantes y supervisa el cumplimiento de los objetivos de la red.
+            Integrado por 5 miembros: 3 profesores-investigadores y 2 estudiantes de
+            posgrado. Aprueba proyectos, admite nuevos integrantes y supervisa el
+            cumplimiento de los objetivos de la red.
           </p>
-        </div>
-        <div class="structure-item">
+        </article>
+        <article class="structure-item">
           <h3 class="structure-item__title">Responsable de la Red</h3>
           <p class="structure-item__text">
-            Elegido cada 2 años mediante votación. Representa legalmente a la red,
-            convoca reuniones y coordina las actividades generales.
+            Elegido cada 2 años mediante votación. Representa legalmente a la red y
+            convoca las reuniones, que son ordinarias de manera trimestral y
+            extraordinarias cuando el Comité lo requiere.
           </p>
-        </div>
+        </article>
       </div>
     </div>
 
-    <!-- Comisiones de trabajo -->
     <div class="content-block">
       <h2 class="content-block__title">Comisiones de trabajo</h2>
-      <div class="commission-list">
-        <div class="commission-item">
-          <span class="commission-item__marker"></span>
-          <span class="commission-item__name">Investigación</span>
-        </div>
-        <div class="commission-item">
-          <span class="commission-item__marker"></span>
-          <span class="commission-item__name">Vinculación</span>
-        </div>
-        <div class="commission-item">
-          <span class="commission-item__marker"></span>
-          <span class="commission-item__name">Difusión</span>
-        </div>
-        <div class="commission-item">
-          <span class="commission-item__marker"></span>
-          <span class="commission-item__name">Formación</span>
-        </div>
-      </div>
+      <ul class="commission-list">
+        {comisiones.map((comision) => (
+          <li class="commission-item">
+            <span class="commission-item__marker" aria-hidden="true"></span>
+            <span class="commission-item__body">
+              <span class="commission-item__name">{comision.nombre}</span>
+              <span class="commission-item__description">{comision.descripcion}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
 
-    <!-- Sede -->
     <div class="content-block">
       <h2 class="content-block__title">Sede institucional</h2>
       <p class="content-block__text">
-        {site.address}, {site.city}.
+        {site.address}. {site.streetAddress}, C.P. {site.postalCode}, {site.city}.
       </p>
     </div>
 
-    <!-- Documentos -->
     <div class="content-block">
       <h2 class="content-block__title">Documentos fundacionales</h2>
-      <div class="documents-list">
-        <a class="document-link" href={`${base}docs/acta-creacion-redrys.pdf`} target="_blank" rel="noopener">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Acta de creación de la REDRYS (PDF)
-        </a>
-        <a class="document-link" href={`${base}docs/reglamento-redrys.pdf`} target="_blank" rel="noopener">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Reglamento de la REDRYS (PDF)
-        </a>
-      </div>
+      <p class="content-block__text">
+        El acta de creación y el reglamento son las fuentes institucionales primarias
+        de la red. Ambos están disponibles en formato consultable y como archivo
+        original.
+      </p>
+      <ul class="documents-list">
+        {documentos.map((documento) => (
+          <li>
+            <a class="document-link" href={`${base}documentos/${documento.id}/`}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              {documento.data.tituloCorto} de la REDRYS
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
-
 </BaseLayout>

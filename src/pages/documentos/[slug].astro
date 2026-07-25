@@ -1,0 +1,96 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import { ORGANIZATION_ID } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const documentos = await getCollection('documentos');
+
+  return documentos.map((documento) => ({
+    params: { slug: documento.id },
+    props: { documento },
+  }));
+}
+
+const { documento } = Astro.props;
+const { Content } = await render(documento);
+const base = import.meta.env.BASE_URL;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const actualizado = documento.data.actualizado.toISOString().slice(0, 10);
+const fecha = documento.data.fecha?.toISOString().slice(0, 10);
+
+/**
+ * `DigitalDocument` describe un documento institucional real que existe y está
+ * publicado. No se añaden tipos de esquema sin contenido que los respalde.
+ */
+const documentNode = {
+  '@type': 'DigitalDocument',
+  '@id': `${canonical}#documento`,
+  name: documento.data.titulo,
+  description: documento.data.resumen,
+  inLanguage: 'es-MX',
+  url: canonical,
+  publisher: { '@id': ORGANIZATION_ID },
+  about: { '@id': ORGANIZATION_ID },
+  dateModified: actualizado,
+  ...(fecha ? { dateCreated: fecha } : {}),
+  ...(documento.data.archivo
+    ? {
+        encoding: {
+          '@type': 'MediaObject',
+          encodingFormat: 'application/pdf',
+          contentUrl: new URL(documento.data.archivo, Astro.site).href,
+        },
+      }
+    : {}),
+};
+---
+
+<BaseLayout
+  title={documento.data.tituloCorto}
+  seoTitle={documento.data.tituloSEO}
+  description={documento.data.descripcionSEO}
+  dateModified={actualizado}
+  schemaNodes={[documentNode]}
+  breadcrumbs={[
+    { label: 'Documentos', href: '/documentos/' },
+    { label: documento.data.tituloCorto },
+  ]}
+>
+  <section class="page-section container">
+    <SectionTitle
+      label={documento.data.tipo}
+      title={documento.data.tituloCorto}
+      subtitle={documento.data.resumen}
+    />
+
+    {documento.data.archivo && (
+      <div class="content-block">
+        <a
+          class="document-link"
+          href={`${base}${documento.data.archivo}`}
+          type="application/pdf"
+          target="_blank"
+          rel="noopener"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Descargar el documento original (PDF, {documento.data.archivoTamano})
+        </a>
+      </div>
+    )}
+
+    <div class="prose content-block">
+      <Content />
+    </div>
+
+    <aside class="source-note">
+      <h2 class="source-note__title">Procedencia de este contenido</h2>
+      <p class="source-note__text">{documento.data.fuente}</p>
+      <p class="source-note__meta">
+        Última actualización: <time datetime={actualizado}>{actualizado}</time>
+      </p>
+    </aside>
+  </section>
+</BaseLayout>

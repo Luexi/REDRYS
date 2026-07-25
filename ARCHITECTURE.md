@@ -49,12 +49,24 @@ estado y rollback se registran en `docs/migracion-chatgpt-sites.md`.
 
 ### Contenido institucional
 
-`src/data/` centraliza los valores reutilizados por las páginas:
+El contenido vive en dos capas según su naturaleza.
 
-- `site.ts`: identidad, contacto, sede, navegación y footer.
-- `integrantes.ts`: directorio público.
+**Datos estructurados cortos y estables** en `src/data/`:
+
+- `site.ts`: identidad, contacto, dirección postal, sede, navegación y footer.
+- `integrantes.ts`: directorio público y datos de perfil académico.
 - `objetivos.ts`: objetivo general y objetivos específicos.
-- `lineas.ts`: líneas de investigación y sus descripciones.
+
+**Textos largos** en `src/content/`, como Content Collections de Astro:
+
+- `lineas/`: una ficha Markdown por línea de investigación.
+- `documentos/`: una ficha Markdown por documento fundacional.
+
+`src/content.config.ts` define los esquemas Zod. Son deliberadamente estrictos:
+cada ficha debe declarar su `fuente` y su `aprobacion`. Una ficha cuyo origen no
+esté documentado **no compila**. Esto convierte la regla editorial en una
+restricción del build, no en una convención que dependa de la memoria de quien
+edita.
 
 Estos archivos son la fuente de contenido para el build, pero no la autoridad
 institucional. La procedencia, adaptaciones y aprobaciones se controlan en
@@ -62,16 +74,27 @@ institucional. La procedencia, adaptaciones y aprobaciones se controlan en
 
 ### Presentación
 
-- `src/pages/` define las siete rutas públicas y la página 404.
-- `src/components/` contiene navegación, footer, títulos y tarjetas
+- `src/pages/` define las rutas públicas y la página 404, incluidas las rutas
+  dinámicas `lineas-investigacion/[slug]`, `documentos/[slug]` e
+  `integrantes/[slug]`.
+- `src/components/` contiene navegación, footer, breadcrumbs, títulos y tarjetas
   reutilizables.
 - `src/layouts/BaseLayout.astro` crea la estructura HTML común, metadata
-  social, canonical y JSON-LD.
+  social, canonical, breadcrumbs y JSON-LD.
+- `src/lib/schema.ts` construye los nodos de datos estructurados.
 - `src/styles/global.css` contiene tokens, tipografía, responsive y estilos de
   componentes.
 
-El sitio no usa React, Vue ni Svelte. El menú móvil funciona con HTML y CSS,
-por lo que la salida pública requiere muy poco JavaScript.
+El sitio no usa React, Vue ni Svelte y **no envía JavaScript al navegador**. El
+menú móvil funciona con un checkbox y CSS; el checkbox se oculta visualmente sin
+`display: none` para que siga siendo alcanzable con el teclado.
+
+### Perfiles de integrante
+
+Una persona obtiene página propia solo si su registro en `integrantes.ts` tiene
+`slug`. Sin `slug` aparece en el directorio pero no genera ruta. Esto evita
+publicar perfiles vacíos y permite incorporar personas de una en una conforme se
+documenten y autoricen sus datos.
 
 ### Assets y documentos
 
@@ -94,15 +117,43 @@ credenciales ni archivos que no deban descargarse públicamente.
 Astro recibe `https://redrys.org` como URL del sitio en `astro.config.mjs`.
 `BaseLayout.astro` genera:
 
-- Títulos y descripciones por página.
-- URL canonical absoluta.
-- Open Graph y Twitter Cards.
-- JSON-LD de tipo `EducationalOrganization`.
-- `noindex, nofollow` para la página 404 cuando corresponde.
+- Títulos y descripciones por página, con un máximo de 75 caracteres de título.
+- URL canonical absoluta, omitida en la página 404 porque `/404/` no existe.
+- Open Graph y Twitter Cards, con dimensiones declaradas de la imagen social.
+- JSON-LD en grafo.
+- `noindex, follow` para la 404 y para las secciones en preparación.
 
-`@astrojs/sitemap` genera `sitemap-index.xml` y `sitemap-0.xml`. La verificación
-exige títulos únicos, metadata completa, HTML principal rastreable, siete
-rutas en el sitemap y preservación exacta de imágenes y PDFs.
+#### Datos estructurados
+
+`src/lib/schema.ts` emite un `@graph` en lugar de un objeto suelto repetido:
+
+| Nodo | Dónde | Por qué |
+| --- | --- | --- |
+| `ResearchOrganization` | Todas las páginas, con `@id` estable | Describe la red mejor que `EducationalOrganization`: la REDRYS promueve investigación, no imparte programas educativos (Reglamento, Art. 1) |
+| `WebSite` | Solo la portada | Una sola declaración del sitio como entidad |
+| `WebPage` | Todas las páginas indexables | Aporta `dateModified` como señal de frescura |
+| `BreadcrumbList` | Rutas de segundo nivel | Acompaña a una jerarquía de navegación real |
+| `DigitalDocument` | `/documentos/<slug>/` | Documentos institucionales que existen y están publicados |
+| `Person` | `/integrantes/<slug>/` | Solo para integrantes con perfil académico documentado |
+
+La regla que gobierna esta tabla: **ningún tipo de esquema se declara sin
+contenido que lo respalde**. No hay `ScholarlyArticle` porque no hay
+publicaciones publicadas; no hay `Event` porque no hay eventos; no hay `sameAs`
+porque no se han recopilado perfiles verificados. Añadirlos antes de tiempo
+sería marcado que no describe la página.
+
+#### Sitemap
+
+`@astrojs/sitemap` genera `sitemap-index.xml` y `sitemap-0.xml`. La
+configuración añade `lastmod` desde una constante explícita —no desde la fecha
+de build, que cambiaría en cada compilación sin que el contenido varíe— y filtra
+las rutas sin contenido suficiente.
+
+La verificación exige títulos únicos y acotados, metadata completa, un solo H1
+por página, JSON-LD válido con la entidad referenciable, un mínimo de 200
+palabras en las rutas indexables, ausencia de dominios externos no autorizados,
+correspondencia exacta entre sitemap y rutas indexables, y preservación exacta
+de imágenes y PDFs.
 
 ## Build y publicación
 
@@ -123,13 +174,22 @@ validación sin permisos de Pages.
 
 1. Astro genera la salida estática.
 2. `scripts/prepare-sites-build.mjs` reorganiza el resultado:
-   - Inserta las rutas HTML, robots y sitemaps en el Worker generado.
+   - **Recorre `dist/` y descubre todas las páginas HTML generadas.** Las rutas
+     no se mantienen a mano: añadir una página a `src/pages/` basta para que
+     quede incluida en el artefacto.
+   - Inserta esas rutas, el HTML, robots y sitemaps en el Worker generado.
    - Conserva imágenes, estilos y PDFs en `dist/client/`.
    - Genera el punto de entrada `dist/server/index.js`.
    - Copia la configuración permitida a `dist/.openai/hosting.json`.
 
 `sites/worker.mjs` sirve el HTML interno y delega los demás assets al
-almacenamiento estático del entorno.
+almacenamiento estático del entorno. Se exporta como `createWorker({ pageRoutes })`
+para poder probarlo sin depender del artefacto generado; el `export default` usa
+las rutas inyectadas en el build.
+
+Antes, la lista de rutas estaba escrita a mano en tres lugares —el Worker, el
+script de preparación y el de verificación— y cada página nueva exigía
+recordarlos todos. Ese acoplamiento desapareció.
 
 ### Versiones y despliegues de Sites
 
@@ -154,9 +214,14 @@ antes de desplegar.
 2. Compila y prepara el artefacto de Sites.
 3. Ejecuta `scripts/verify-sites-build.mjs`.
 
-La verificación comprueba Worker, siete rutas, SEO, sitemap, 404, archivos
-estáticos y estructura del artefacto. También comprueba que la configuración
-de hosting no incluya claves inesperadas.
+La verificación comprueba el Worker, todas las rutas descubiertas, SEO, datos
+estructurados, sitemap, 404, archivos estáticos y estructura del artefacto.
+También comprueba que la configuración de hosting no incluya claves inesperadas.
+
+Dos umbrales de la verificación son decisiones editoriales convertidas en
+código: el mínimo de 200 palabras para que una ruta pueda ser indexable, y la
+lista de dominios externos permitidos, que impide reintroducir imágenes de
+stock o recursos de terceros sin advertirlo.
 
 ## Comportamiento HTTP
 
@@ -182,10 +247,23 @@ Se eligió porque el contenido cambia con poca frecuencia y no requiere
 sesiones ni persistencia. A cambio, cada cambio necesita un nuevo build y
 despliegue.
 
-### Contenido en TypeScript
+### Contenido en TypeScript y en Content Collections
 
-Centraliza los datos reutilizados y reduce inconsistencias entre páginas. No
-es un CMS: una persona con acceso al repositorio debe editar y publicar.
+Los datos cortos y estables siguen en TypeScript: para 22 integrantes y cuatro
+objetivos, una colección sería sobreingeniería.
+
+Los textos largos —líneas de investigación y documentos— pasaron a Content
+Collections porque el problema que resuelven es real aquí: editar 650 palabras
+dentro de un literal de plantilla es incómodo, y la validación Zod impide
+publicar una ficha sin declarar su procedencia. Ninguna de las dos capas es un
+CMS: una persona con acceso al repositorio debe editar y publicar.
+
+### Perfiles opcionales en lugar de perfiles vacíos
+
+Se descartó generar 22 perfiles de integrante rellenando los huecos. Una página
+de 40 palabras con un nombre y una sigla no aporta nada a quien la visita y
+diluye el sitio. El `slug` opcional permite que la arquitectura exista completa
+mientras el contenido llega persona a persona.
 
 ### GitHub como fuente de verdad
 

@@ -4,24 +4,25 @@ import { access, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const publicRoutes = [
-  '/',
-  '/la-red/',
-  '/objetivos/',
-  '/integrantes/',
-  '/contacto/',
-  '/galeria/',
-  '/repositorio/',
-];
+/**
+ * Rutas publicadas sin contenido suficiente. Se sirven con `noindex, follow` y
+ * quedan fuera del sitemap hasta que dejen de ser secciones en preparación.
+ * Debe coincidir con `EXCLUDED_FROM_SITEMAP` en `astro.config.mjs`.
+ */
+const NOINDEX_ROUTES = new Set(['/galeria/', '/repositorio/']);
 
-const routeAssets = new Map(
-  publicRoutes.map((route) => [
-    route,
-    route === '/'
-      ? '/index.html'
-      : `${route}index.html`,
-  ]),
-);
+/** Mínimo de palabras dentro de <main> exigible a una ruta indexable. */
+const MIN_WORDS_INDEXABLE = 200;
+
+/** Dominios externos permitidos en el HTML publicado. */
+const ALLOWED_EXTERNAL_HOSTS = new Set([
+  'fonts.googleapis.com',
+  'fonts.gstatic.com',
+  'schema.org',
+  'www.w3.org',
+  'redrys.org',
+  'www.uagro.mx',
+]);
 
 function tags(html, tagName) {
   return html.match(new RegExp(`<${tagName}\\b[^>]*>`, 'gi')) ?? [];
@@ -43,23 +44,53 @@ function link(html, rel) {
   return tag ? attribute(tag, 'href') : null;
 }
 
+function mainWordCount(html) {
+  const main = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? '';
+  const text = main
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return text ? text.split(' ').length : 0;
+}
+
+function externalHosts(html) {
+  const matches = html.match(/(?:src|href)=["']https?:\/\/([^/"']+)/gi) ?? [];
+  return matches.map((item) => item.split('//')[1]);
+}
+
 async function sha256(path) {
   const contents = await readFile(resolve(path));
   return createHash('sha256').update(contents).digest('hex');
 }
 
-const titles = [];
 const workerURL = pathToFileURL(resolve('dist/server/index.js'));
 workerURL.searchParams.set('verify', `${process.pid}-${Date.now()}`);
 const {
   GENERATED_TEXT_ASSETS,
+  GENERATED_PAGE_ROUTES,
   default: generatedWorker,
 } = await import(workerURL.href);
+
+const publicRoutes = [...GENERATED_PAGE_ROUTES].sort();
+const indexableRoutes = publicRoutes.filter((route) => !NOINDEX_ROUTES.has(route));
+
+assert.ok(publicRoutes.includes('/'), 'The build must expose the home route');
+assert.ok(
+  indexableRoutes.length >= publicRoutes.length - NOINDEX_ROUTES.size,
+  'Unexpected noindex route in the build',
+);
+
+// --- Comportamiento del Worker generado ---
+
 const generatedEnvironment = {
   ASSETS: {
     fetch: async () => new Response('Not found', { status: 404 }),
   },
 };
+
 const canonicalResponse = await generatedWorker.fetch(
   new Request('https://redrys.org/'),
   generatedEnvironment,
@@ -78,6 +109,10 @@ const generatedNotFound = await generatedWorker.fetch(
   }),
   generatedEnvironment,
 );
+const nestedRedirect = await generatedWorker.fetch(
+  new Request('https://redrys.org/lineas-investigacion'),
+  generatedEnvironment,
+);
 
 assert.equal(canonicalResponse.status, 200);
 assert.equal(canonicalResponse.headers.get('X-Robots-Tag'), null);
@@ -92,9 +127,21 @@ assert.equal(
   generatedNotFound.headers.get('X-Robots-Tag'),
   'noindex, nofollow',
 );
+assert.equal(nestedRedirect.status, 308, 'Nested routes must redirect to the trailing slash');
+assert.equal(
+  nestedRedirect.headers.get('Location'),
+  'https://redrys.org/lineas-investigacion/',
+);
 
-for (const [route, assetPath] of routeAssets) {
+// --- SEO por ruta ---
+
+const titles = [];
+
+for (const route of publicRoutes) {
+  const assetPath = route === '/' ? '/index.html' : `${route}index.html`;
   const html = GENERATED_TEXT_ASSETS.get(assetPath)?.body;
+  assert.ok(html, `${route} is missing from the generated assets`);
+
   const title = html.match(/<title>([^<]+)<\/title>/i)?.[1];
   const canonical = link(html, 'canonical');
   const expectedCanonical = new URL(route, 'https://redrys.org').href;
@@ -108,6 +155,10 @@ for (const [route, assetPath] of routeAssets) {
     `${route} must declare lang=es`,
   );
   assert.ok(title, `${route} must have a title`);
+  assert.ok(
+    title.length <= 75,
+    `${route} title is too long (${title.length} characters)`,
+  );
   assert.ok(meta(html, 'name', 'description'), `${route} needs a description`);
   assert.equal(canonical, expectedCanonical, `${route} canonical mismatch`);
 
@@ -117,6 +168,8 @@ for (const [route, assetPath] of routeAssets) {
     'og:title',
     'og:description',
     'og:image',
+    'og:image:width',
+    'og:image:height',
     'og:site_name',
     'og:locale',
   ]) {
@@ -133,14 +186,49 @@ for (const [route, assetPath] of routeAssets) {
     assert.ok(meta(html, 'name', name), `${route} missing ${name}`);
   }
 
-  assert.equal(meta(html, 'name', 'robots'), null, `${route} must be indexable`);
-  assert.ok(jsonLDText, `${route} missing JSON-LD`);
+  const robots = meta(html, 'name', 'robots');
+
+  if (NOINDEX_ROUTES.has(route)) {
+    assert.equal(
+      robots,
+      'noindex, follow',
+      `${route} must be noindex while it has no content`,
+    );
+  } else {
+    assert.equal(robots, null, `${route} must be indexable`);
+    assert.ok(
+      mainWordCount(html) >= MIN_WORDS_INDEXABLE,
+      `${route} has too little content to be indexable (${mainWordCount(html)} words)`,
+    );
+  }
+
+  // Un solo H1 por página.
   assert.equal(
-    JSON.parse(jsonLDText)['@type'],
-    'EducationalOrganization',
-    `${route} JSON-LD type mismatch`,
+    (html.match(/<h1\b/gi) ?? []).length,
+    1,
+    `${route} must contain exactly one H1`,
   );
+
+  // JSON-LD válido, con la entidad de la red referenciable por @id.
+  assert.ok(jsonLDText, `${route} missing JSON-LD`);
+  const jsonLD = JSON.parse(jsonLDText);
+  assert.ok(Array.isArray(jsonLD['@graph']), `${route} JSON-LD must use @graph`);
+  const organization = jsonLD['@graph'].find(
+    (node) => node['@id'] === 'https://redrys.org/#organizacion',
+  );
+  assert.ok(organization, `${route} JSON-LD missing the organization node`);
+  assert.equal(organization['@type'], 'ResearchOrganization');
+
+  // Ningún recurso externo no autorizado (p. ej. imágenes de stock).
+  for (const host of externalHosts(html)) {
+    assert.ok(
+      ALLOWED_EXTERNAL_HOSTS.has(host),
+      `${route} references the unexpected external host ${host}`,
+    );
+  }
+
   assert.match(html, /<main\b/i, `${route} must contain crawlable main HTML`);
+  assert.match(html, /class="skip-link"/, `${route} must expose the skip link`);
   titles.push(title);
 }
 
@@ -149,6 +237,8 @@ assert.equal(
   publicRoutes.length,
   'Every public route must have a unique title',
 );
+
+// --- robots.txt y sitemap ---
 
 const robots = GENERATED_TEXT_ASSETS.get('/robots.txt')?.body;
 assert.match(robots, /User-agent:\s*\*/i);
@@ -164,10 +254,32 @@ const sitemapRoutes = [
 ]
   .map((match) => match[1] || '/')
   .sort();
-assert.deepEqual(sitemapRoutes, [...publicRoutes].sort());
+
+assert.deepEqual(
+  sitemapRoutes,
+  indexableRoutes,
+  'The sitemap must list exactly the indexable routes',
+);
+assert.match(sitemap, /<lastmod>\d{4}-\d{2}-\d{2}/, 'The sitemap must declare lastmod');
+
+for (const route of NOINDEX_ROUTES) {
+  assert.ok(
+    !sitemapRoutes.includes(route),
+    `${route} must not appear in the sitemap`,
+  );
+}
+
+// --- Página 404 ---
 
 const notFoundHTML = GENERATED_TEXT_ASSETS.get('/404.html')?.body;
-assert.equal(meta(notFoundHTML, 'name', 'robots'), 'noindex, nofollow');
+assert.equal(meta(notFoundHTML, 'name', 'robots'), 'noindex, follow');
+assert.equal(
+  link(notFoundHTML, 'canonical'),
+  null,
+  'The 404 page must not declare a canonical URL',
+);
+
+// --- Assets preservados y estructura del artefacto ---
 
 for (const asset of [
   'images/logo-redrys-uagro.png',
@@ -183,6 +295,7 @@ for (const asset of [
 }
 
 await readFile(resolve('dist/server/index.js'), 'utf8');
+
 for (const internalTextAsset of [
   'index.html',
   '404.html',
@@ -195,6 +308,7 @@ for (const internalTextAsset of [
     `${internalTextAsset} must be served by the Worker`,
   );
 }
+
 const hosting = JSON.parse(
   await readFile(resolve('dist/.openai/hosting.json'), 'utf8'),
 );
@@ -206,5 +320,6 @@ assert.deepEqual(
 );
 
 console.log(
-  `Verified ${publicRoutes.length} routes, SEO, sitemap, 404, worker and preserved assets.`,
+  `Verified ${publicRoutes.length} routes (${indexableRoutes.length} indexable), SEO, ` +
+    'structured data, sitemap, 404, worker and preserved assets.',
 );

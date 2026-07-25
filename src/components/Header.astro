@@ -10,18 +10,33 @@ function url(path: string) {
 
 function isActive(linkHref: string) {
   const full = url(linkHref);
-  return currentPath === full || currentPath === full.replace(/\/$/, '');
+
+  if (linkHref === '/') {
+    return currentPath === full || currentPath === full.replace(/\/$/, '');
+  }
+
+  return currentPath === full || currentPath.startsWith(full);
 }
 ---
 
 <header class="site-header">
-  <input type="checkbox" id="mobile-toggle" class="mobile-toggle" />
+  <!--
+    El checkbox controla el menú móvil sin JavaScript. Se oculta visualmente
+    pero permanece en el orden de tabulación: `display: none` lo excluiría del
+    foco y dejaría la navegación inoperable con teclado por debajo de 1024 px.
+  -->
+  <input
+    type="checkbox"
+    id="mobile-toggle"
+    class="mobile-toggle"
+    aria-label="Abrir o cerrar el menú de navegación"
+  />
 
-  <nav class="site-header__nav container">
+  <nav class="site-header__nav container" aria-label="Navegación principal">
     <a class="site-header__brand" href={url('/')}>
       <img
         src={`${base}images/logo-redrys-uagro.png`}
-        alt="Logo REDRYS"
+        alt="REDRYS"
         class="site-header__brand-logo"
         width="36"
         height="36"
@@ -34,6 +49,7 @@ function isActive(linkHref: string) {
         <a
           class={`nav-link${isActive(link.href) ? ' nav-link--active' : ''}`}
           href={url(link.href)}
+          aria-current={isActive(link.href) ? 'page' : undefined}
         >
           {link.label}
         </a>
@@ -41,10 +57,8 @@ function isActive(linkHref: string) {
     </div>
 
     <div class="site-header__actions">
-      <div class="site-header__context">
-        Investigación & Desarrollo Regional
-      </div>
-      <label for="mobile-toggle" class="mobile-toggle-label" aria-label="Abrir menú de navegación">
+      <p class="site-header__context">Investigación &amp; Desarrollo Regional</p>
+      <label for="mobile-toggle" class="mobile-toggle-label" aria-hidden="true">
         <svg class="icon-menu" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="6" x2="21" y2="6"/>
           <line x1="3" y1="12" x2="21" y2="12"/>
@@ -58,14 +72,15 @@ function isActive(linkHref: string) {
     </div>
   </nav>
 
-  <div class="mobile-menu">
+  <nav class="mobile-menu" aria-label="Navegación móvil">
     {navLinks.map((link) => (
       <a
         class={`nav-link${isActive(link.href) ? ' nav-link--active' : ''}`}
         href={url(link.href)}
+        aria-current={isActive(link.href) ? 'page' : undefined}
       >
         {link.label}
       </a>
     ))}
-  </div>
+  </nav>
 </header>

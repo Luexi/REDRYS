@@ -30,18 +30,19 @@ function url(path: string) {
       </div>
     </div>
 
-    <div class="site-footer__tagline">
+    <p class="site-footer__tagline">
       &ldquo;{site.tagline}&rdquo;
-    </div>
+    </p>
   </div>
 
-  <div class="site-footer__links">
+  <nav class="site-footer__links" aria-label="Navegación del pie de página">
     {footerLinks.map((link) => (
       <a class="site-footer__link" href={url(link.href)}>{link.label}</a>
     ))}
-  </div>
+  </nav>
 
   <p class="site-footer__institutional">
-    {site.faculty} · {site.institution}
+    {site.faculty} · <a href={site.institutionUrl} rel="noopener">{site.institution}</a>
+    · {site.city}
   </p>
 </footer>

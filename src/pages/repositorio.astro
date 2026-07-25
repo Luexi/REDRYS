@@ -1,45 +1,82 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
+
+const base = import.meta.env.BASE_URL;
 ---
 
-<BaseLayout title="Repositorio" description="Repositorio académico de la REDRYS — publicaciones, ponencias y material de investigación.">
-
+<BaseLayout
+  title="Repositorio"
+  description="Repositorio académico de la REDRYS — publicaciones, ponencias y material de investigación en acceso abierto."
+  noindex={true}
+  breadcrumbs={[{ label: 'Repositorio', href: '/repositorio/' }]}
+>
   <section class="page-section container">
     <SectionTitle
       label="REDRYS"
-      title="Repositorio"
-      subtitle="Espacio dedicado a la difusión de producción académica generada por los integrantes de la red."
+      title="Repositorio académico"
+      subtitle="Espacio destinado a la difusión de la producción académica generada por los integrantes de la red."
     />
 
     <div class="page-placeholder">
-      <div class="page-placeholder__icon">
+      <div class="page-placeholder__icon" aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
         </svg>
       </div>
-      <h2 class="page-placeholder__title">Próximamente</h2>
+      <h2 class="page-placeholder__title">Sección en preparación</h2>
       <p class="page-placeholder__text">
-        Los resultados de investigación serán difundidos en acceso abierto, citando la afiliación
-        a la REDRYS y la UAGro, conforme a las políticas de publicación de la red.
+        La recopilación del catálogo de publicaciones, ponencias y materiales de la
+        red está en curso. Las fichas se publicarán con sus metadatos completos
+        —autores, año, línea de investigación, revista o evento, DOI y forma de
+        citar— conforme se verifiquen y se confirmen los derechos de publicación.
+      </p>
+      <p class="page-placeholder__note">
+        Mientras no tenga contenido, esta página está marcada como no indexable y no
+        forma parte del sitemap del sitio.
       </p>
     </div>
 
-    <div class="placeholder-categories">
-      <div class="placeholder-category">
-        <h3 class="placeholder-category__title">Publicaciones</h3>
-        <span class="placeholder-category__status">Próximamente</span>
-      </div>
-      <div class="placeholder-category">
-        <h3 class="placeholder-category__title">Ponencias</h3>
-        <span class="placeholder-category__status">Próximamente</span>
-      </div>
-      <div class="placeholder-category">
-        <h3 class="placeholder-category__title">Material didáctico</h3>
-        <span class="placeholder-category__status">Próximamente</span>
-      </div>
+    <div class="content-block">
+      <h2 class="content-block__title">Política de acceso abierto</h2>
+      <p class="content-block__text">
+        El Artículo 13 del <a href={`${base}documentos/reglamento/`}>reglamento de la
+        REDRYS</a> establece que los resultados de investigación deberán divulgarse en
+        acceso abierto, citando la afiliación a la REDRYS/UAGro. Este repositorio
+        existe para dar cumplimiento a esa disposición.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Contenido previsto</h2>
+      <ul class="feature-list">
+        <li class="feature-list__item">
+          <span class="feature-list__term">Publicaciones</span>
+          <span class="feature-list__text">
+            Artículos, capítulos de libro y memorias con afiliación REDRYS/UAGro.
+          </span>
+        </li>
+        <li class="feature-list__item">
+          <span class="feature-list__term">Ponencias</span>
+          <span class="feature-list__text">
+            Participaciones en congresos, foros y encuentros académicos.
+          </span>
+        </li>
+        <li class="feature-list__item">
+          <span class="feature-list__term">Material didáctico</span>
+          <span class="feature-list__text">
+            Recursos de formación producidos por la comisión de formación.
+          </span>
+        </li>
+      </ul>
+      <p class="content-block__text">
+        Entre tanto, las
+        <a href={`${base}lineas-investigacion/`}>líneas de investigación</a> describen
+        los campos de trabajo de la red, y los
+        <a href={`${base}documentos/`}>documentos fundacionales</a> reúnen la
+        normativa vigente.
+      </p>
     </div>
   </section>
-
 </BaseLayout>

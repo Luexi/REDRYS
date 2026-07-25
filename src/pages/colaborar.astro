@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import { site } from '../data/site';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout
+  title="Colaborar"
+  seoTitle="Colaborar con REDRYS — Incorporación y vinculación"
+  description="Cómo incorporarse a la REDRYS o colaborar con la red: tipos de miembros, requisitos de admisión, derechos, obligaciones y vías de vinculación institucional con la UAGro."
+  breadcrumbs={[{ label: 'Colaborar', href: '/colaborar/' }]}
+>
+  <section class="page-section container">
+    <SectionTitle
+      label="REDRYS"
+      title="Colaborar con la REDRYS"
+      subtitle="La red está abierta a profesores-investigadores, estudiantes de posgrado y colaboradores externos. Los requisitos y el procedimiento están fijados en el reglamento."
+    />
+
+    <div class="content-block">
+      <h2 class="content-block__title">Quién puede formar parte de la red</h2>
+      <p class="content-block__text">
+        El Artículo 4 del <a href={`${base}documentos/reglamento/`}>reglamento</a>
+        reconoce tres tipos de miembros:
+      </p>
+      <ul class="feature-list">
+        <li class="feature-list__item">
+          <span class="feature-list__term">Profesores-investigadores</span>
+          <span class="feature-list__text">
+            Académicos de la Universidad Autónoma de Guerrero con líneas de
+            investigación afines a las de la red.
+          </span>
+        </li>
+        <li class="feature-list__item">
+          <span class="feature-list__term">Estudiantes de posgrado</span>
+          <span class="feature-list__text">
+            Alumnos de la Maestría en Dirección de Organizaciones, de la Maestría en
+            Estudios Fiscales o de otros posgrados de la UAGro, con proyectos
+            alineados a los objetivos de la red.
+          </span>
+        </li>
+        <li class="feature-list__item">
+          <span class="feature-list__term">Colaboradores externos</span>
+          <span class="feature-list__text">
+            Instituciones o especialistas invitados, previa aprobación del Comité
+            Académico.
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Requisitos de admisión</h2>
+      <p class="content-block__text">
+        Conforme al Artículo 5 del reglamento, la incorporación requiere:
+      </p>
+      <ol class="ordered-list">
+        <li class="ordered-list__item">
+          Presentar una solicitud escrita acompañada de currículum vitae y carta de
+          intención.
+        </li>
+        <li class="ordered-list__item">
+          Aprobar la revisión del Comité Académico, integrado por cinco miembros
+          (tres profesores-investigadores y dos estudiantes de posgrado).
+        </li>
+      </ol>
+      <p class="content-block__text">
+        La solicitud se envía al correo institucional de la red:
+        <a href={`mailto:${site.email}`}>{site.email}</a>.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Derechos de los integrantes</h2>
+      <ul class="feature-list feature-list--simple">
+        <li class="feature-list__item">Participar en proyectos y actividades de la red.</li>
+        <li class="feature-list__item">
+          Usar los recursos académicos disponibles, con las restricciones éticas
+          correspondientes.
+        </li>
+        <li class="feature-list__item">Postularse para roles de coordinación.</li>
+      </ul>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Obligaciones de los integrantes</h2>
+      <ul class="feature-list feature-list--simple">
+        <li class="feature-list__item">Asistir a las reuniones periódicas de la red.</li>
+        <li class="feature-list__item">
+          Contribuir activamente en al menos un proyecto anual.
+        </li>
+        <li class="feature-list__item">
+          Cumplir con los principios éticos y de transparencia de la red.
+        </li>
+      </ul>
+      <p class="content-block__text">
+        Las reuniones ordinarias son trimestrales y pueden convocarse reuniones
+        extraordinarias cuando el Comité Académico lo requiera.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Vinculación institucional</h2>
+      <p class="content-block__text">
+        El segundo objetivo de la REDRYS es vincular la investigación con actores
+        sociales, gubernamentales y empresariales para generar soluciones prácticas.
+        Dependencias públicas, organizaciones sociales y empresas interesadas en
+        colaborar con alguna de las
+        <a href={`${base}lineas-investigacion/`}>tres líneas de investigación</a>
+        pueden dirigir su propuesta al mismo correo institucional.
+      </p>
+      <p class="content-block__text">
+        Todo proyecto de la red debe integrar al menos un profesor-investigador y dos
+        estudiantes de posgrado, y contar con una evaluación de impacto social. Sus
+        resultados se divulgan en acceso abierto citando la afiliación REDRYS/UAGro.
+      </p>
+    </div>
+
+    <div class="content-block">
+      <a class="btn btn--primary" href={`mailto:${site.email}`}>
+        Escribir a {site.email}
+      </a>
+    </div>
+  </section>
+</BaseLayout>

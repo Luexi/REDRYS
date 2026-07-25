@@ -3,22 +3,30 @@ interface Props {
   name: string;
   dependency: string;
   role: string;
+  grado?: string;
+  slug?: string;
 }
 
-const { name, dependency, role } = Astro.props;
+const { name, dependency, role, grado, slug } = Astro.props;
+const base = import.meta.env.BASE_URL;
 
 const initials = name
   .split(' ')
   .filter((_, i, arr) => i === 0 || i === arr.length - 1)
   .map((w) => w.charAt(0).toUpperCase())
   .join('');
+
+const displayName = grado ? `${grado} ${name}` : name;
+const href = slug ? `${base}integrantes/${slug}/` : null;
 ---
 
-<div class="member-card">
-  <div class="member-card__avatar">{initials}</div>
+<article class="member-card">
+  <div class="member-card__avatar" aria-hidden="true">{initials}</div>
   <div class="member-card__info">
-    <div class="member-card__name">{name}</div>
-    <div class="member-card__dep">{dependency}</div>
-    <div class="member-card__role">{role}</div>
+    <h3 class="member-card__name">
+      {href ? <a href={href}>{displayName}</a> : displayName}
+    </h3>
+    <p class="member-card__dep">{dependency}</p>
+    <p class="member-card__role">{role}</p>
   </div>
-</div>
+</article>

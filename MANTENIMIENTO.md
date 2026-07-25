@@ -94,11 +94,51 @@ alcance también necesita aprobación.
 
 ### Líneas de investigación
 
-Edita `src/data/lineas.ts`.
+Edita los archivos Markdown de `src/content/lineas/`. Hay uno por línea y el
+nombre del archivo determina la URL.
 
-Cada línea tiene `title` y `description`. El reglamento contiene los nombres;
-las descripciones públicas son una explicación editorial y deben revisarse si
-se modifica la formulación oficial.
+El frontmatter es obligatorio y está validado: si falta un campo o `tituloSEO`
+supera los 70 caracteres, **el build falla**. Los campos críticos son:
+
+- `fuente`: de dónde procede el contenido. Debe poder rastrearse hasta un
+  documento institucional o una aprobación registrada.
+- `aprobacion`: `documento-institucional`, `editorial-pendiente-de-aprobacion` o
+  `editorial-aprobada`. Cuando la coordinación ratifique un texto, cambia este
+  campo y registra la fecha en `docs/FUENTES-Y-PENDIENTES.md`.
+- `actualizado`: fecha de la última revisión del contenido.
+
+El nombre de cada línea procede del Artículo 1 del reglamento y no se modifica
+sin aprobación. El cuerpo del documento es redacción editorial.
+
+Para añadir una línea nueva basta con crear el archivo: el índice, la portada,
+`/la-red/`, el sitemap y el Worker la recogen automáticamente.
+
+### Documentos fundacionales
+
+Edita los archivos de `src/content/documentos/`. Mismo frontmatter, más:
+
+- `textoIntegro`: `true` solo si el HTML reproduce el documento completo.
+- `archivo` y `archivoTamano`: ruta y peso del PDF original.
+
+**El acta no debe transcribirse.** Contiene firmas manuscritas y datos
+personales. Su página publica únicamente los datos institucionales.
+
+### Perfiles de integrante
+
+Edita `src/data/integrantes.ts`.
+
+Una persona obtiene página propia **solo si su registro tiene `slug`**. Sin
+`slug` aparece en el directorio pero no genera ruta. Para publicar un perfil
+nuevo hacen falta, como mínimo, `slug`, `grado` y `semblanza`.
+
+Antes de añadir un perfil:
+
+- Confirma que el nombre coincide exactamente con la fuente de los datos. Si hay
+  variantes ortográficas, **no las resuelvas por inferencia**: regístralas como
+  pendiente.
+- Confirma que la persona autoriza la publicación de sus datos.
+- No publiques correos personales, ORCID ni fotografías sin autorización
+  explícita.
 
 ### Navegación y footer
 
@@ -132,16 +172,40 @@ Para sustituirlos sin cambiar enlaces:
 2. Confirma que la versión sea oficial y esté autorizada para publicación.
 3. Revisa firmas, teléfonos, correos y otros datos visibles.
 4. Abre todas las páginas del PDF y confirma legibilidad.
-5. Verifica los enlaces desde `/la-red/`.
+5. Verifica los enlaces desde `/la-red/` y desde `/documentos/`, y actualiza
+   `archivoTamano` en la ficha de `src/content/documentos/` si cambió el peso.
 6. Registra la versión y aprobación en `FUENTES-Y-PENDIENTES.md`.
 
 No sobrescribas una versión oficial si no existe una copia recuperable en el
 historial o archivo institucional.
 
+### Fecha del sitemap
+
+Cuando publiques un cambio real de contenido, actualiza `CONTENT_LAST_MODIFIED`
+en `astro.config.mjs`. Es el `lastmod` que se envía a los buscadores.
+
+No se deriva de la fecha de compilación a propósito: si lo hiciera, cada build
+declararía contenido nuevo aunque nada hubiera cambiado, y la señal dejaría de
+significar algo.
+
+### Secciones en preparación
+
+`/galeria/` y `/repositorio/` se publican con `noindex, follow` y quedan fuera
+del sitemap. Siguen siendo accesibles para quien visite el sitio, pero no se
+ofrecen a los buscadores mientras no tengan contenido.
+
+Para reactivar una de ellas cuando tenga contenido real:
+
+1. Quita `noindex={true}` de la página en `src/pages/`.
+2. Elimina la ruta de `EXCLUDED_FROM_SITEMAP` en `astro.config.mjs`.
+3. Elimina la ruta de `NOINDEX_ROUTES` en `scripts/verify-sites-build.mjs`.
+4. Ejecuta `npm run verify:sites`. Si la página no alcanza las 200 palabras, la
+   verificación fallará: es la señal de que todavía no está lista.
+
 ### Galería
 
-`src/pages/galeria.astro` es actualmente un placeholder. Para convertirla en
-una sección real se requiere:
+`src/pages/galeria.astro` es actualmente una sección en preparación. Para
+convertirla en una sección real se requiere:
 
 - Selección de fotografías aprobadas.
 - Fecha, evento y pie de foto.
@@ -154,8 +218,9 @@ conjunto y el contexto publicado.
 
 ### Repositorio académico
 
-`src/pages/repositorio.astro` es actualmente un placeholder. Antes de
-implementarlo se debe decidir:
+`src/pages/repositorio.astro` es actualmente una sección en preparación. La
+condición de entrada para construirlo está en [`roadmap.md`](roadmap.md). Antes
+de implementarlo se debe decidir:
 
 - Qué tipos de materiales se aceptan.
 - Metadatos mínimos: título, autores, fecha, categoría y enlace.
@@ -190,15 +255,23 @@ Antes de cada publicación ejecuta:
 npm run verify:sites
 ```
 
-El resultado esperado termina con un mensaje que confirma siete rutas, SEO,
-sitemap, 404, Worker y assets preservados. Un exit code distinto de cero
-significa que no se debe publicar.
+El resultado esperado termina con un mensaje que confirma el número de rutas
+verificadas, cuántas son indexables, SEO, datos estructurados, sitemap, 404,
+Worker y assets preservados. Un exit code distinto de cero significa que no se
+debe publicar.
+
+La verificación falla, entre otros motivos, si una ruta indexable tiene menos de
+200 palabras, si un título supera los 75 caracteres, si hay más de un H1, si
+aparece un dominio externo no autorizado o si el sitemap y las rutas indexables
+dejan de coincidir. Son fallos intencionados: señalan un problema de contenido,
+no un error del script.
 
 Además realiza una revisión visual:
 
-1. Abre las siete rutas públicas.
-2. Prueba el menú en móvil y escritorio.
-3. Comprueba enlaces internos, correo, teléfono y descargas.
+1. Abre la portada, una línea de investigación, un documento y un perfil.
+2. Prueba el menú en móvil y escritorio, **incluido el manejo con teclado**:
+   tabula hasta el control del menú y ábrelo con la barra espaciadora.
+3. Comprueba enlaces internos, breadcrumbs, correo, teléfono y descargas.
 4. Abre ambos PDFs.
 5. Visita una ruta inexistente.
 6. Revisa que no haya contenido provisional presentado como definitivo.
@@ -215,7 +288,8 @@ Además realiza una revisión visual:
 8. Solicita a Codex que prepare ese commit para el Site existente de REDRYS.
 9. Guarda en Sites una versión vinculada al SHA validado.
 10. Despliega explícitamente esa versión.
-11. Comprueba el dominio canónico, las siete rutas, assets, PDFs, 404 y SEO.
+11. Comprueba el dominio canónico, una muestra de rutas de cada tipo, assets,
+    PDFs, 404 y SEO.
 
 Un push a `main` activa el workflow de GitHub Pages mientras permanezca
 habilitado durante la migración, pero no actualiza ChatGPT Sites. Después de
@@ -250,7 +324,10 @@ rollback y recibir la autorización final indicada en la bitácora.
 - [ ] Metadata, canonical y contenido visible son consistentes.
 - [ ] Las imágenes tienen texto alternativo.
 - [ ] Los PDFs correctos abren y son legibles.
-- [ ] Galería y Repositorio conservan su estado real.
+- [ ] Galería y Repositorio conservan su estado real y siguen en `noindex`.
+- [ ] `CONTENT_LAST_MODIFIED` se actualizó si cambió el contenido.
+- [ ] Las fichas nuevas declaran `fuente` y `aprobacion` correctos.
+- [ ] El menú móvil se puede abrir con teclado.
 - [ ] `npm run verify:sites` terminó correctamente.
 - [ ] El diff contiene solo archivos esperados.
 - [ ] El SHA solicitado a Sites coincide con el commit aprobado en GitHub.

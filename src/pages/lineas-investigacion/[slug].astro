@@ -1,0 +1,103 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import { site } from '../../data/site';
+
+export async function getStaticPaths() {
+  const lineas = await getCollection('lineas');
+
+  return lineas.map((linea) => ({
+    params: { slug: linea.id },
+    props: { linea },
+  }));
+}
+
+const { linea } = Astro.props;
+const { Content } = await render(linea);
+const base = import.meta.env.BASE_URL;
+
+const otrasLineas = (await getCollection('lineas'))
+  .filter((item) => item.id !== linea.id)
+  .sort((a, b) => a.data.orden - b.data.orden);
+
+const actualizado = linea.data.actualizado.toISOString().slice(0, 10);
+---
+
+<BaseLayout
+  title={linea.data.titulo}
+  seoTitle={`${linea.data.titulo} — REDRYS`}
+  description={linea.data.descripcionSEO}
+  dateModified={actualizado}
+  breadcrumbs={[
+    { label: 'Líneas de investigación', href: '/lineas-investigacion/' },
+    { label: linea.data.tituloCorto },
+  ]}
+>
+  <section class="page-section container">
+    <SectionTitle
+      label="Línea de investigación"
+      title={linea.data.titulo}
+      subtitle={linea.data.resumen}
+    />
+
+    <div class="prose content-block">
+      <Content />
+    </div>
+
+    {linea.data.objetivosRelacionados.length > 0 && (
+      <div class="content-block">
+        <h2 class="content-block__title">Objetivos del reglamento asociados</h2>
+        <ul class="objective-list">
+          {linea.data.objetivosRelacionados.map((objetivo) => (
+            <li class="objective-list__item">{objetivo}</li>
+          ))}
+        </ul>
+        <p class="content-block__text">
+          El conjunto completo está en la página de
+          <a href={`${base}objetivos/`}>objetivos de la REDRYS</a>.
+        </p>
+      </div>
+    )}
+
+    <div class="content-block">
+      <h2 class="content-block__title">Otras líneas de la red</h2>
+      <ul class="related-list">
+        {otrasLineas.map((otra) => (
+          <li class="related-list__item">
+            <a class="related-list__link" href={`${base}lineas-investigacion/${otra.id}/`}>
+              {otra.data.titulo}
+            </a>
+            <span class="related-list__summary">{otra.data.resumen}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="content-block">
+      <h2 class="content-block__title">Participar en esta línea</h2>
+      <p class="content-block__text">
+        La REDRYS recibe solicitudes de incorporación y propuestas de colaboración
+        de instituciones y especialistas externos. Consulta los requisitos en
+        <a href={`${base}colaborar/`}>Colaborar con la REDRYS</a> o escribe a
+        <a href={`mailto:${site.email}`}>{site.email}</a>.
+      </p>
+    </div>
+
+    <aside class="source-note">
+      <h2 class="source-note__title">Procedencia de este contenido</h2>
+      <p class="source-note__text">{linea.data.fuente}</p>
+      {linea.data.aprobacion === 'editorial-pendiente-de-aprobacion' && (
+        <p class="source-note__text">
+          El desarrollo editorial de esta página está pendiente de ratificación por
+          la coordinación de la REDRYS. Los nombres de las líneas y las reglas de
+          funcionamiento citadas proceden del
+          <a href={`${base}documentos/reglamento/`}>reglamento vigente</a>.
+        </p>
+      )}
+      <p class="source-note__meta">
+        Última actualización: <time datetime={actualizado}>{actualizado}</time>
+      </p>
+    </aside>
+  </section>
+</BaseLayout>
