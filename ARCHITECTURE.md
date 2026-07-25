@@ -142,6 +142,42 @@ a la pantalla, y el color solo pintaba dos ornamentos de 2 px.
 
 El sitio es de tema claro único. El modo oscuro no está implementado.
 
+#### Texto justificado
+
+El texto corrido se justifica, como en una publicación académica impresa. En
+pantalla eso solo funciona con partición de palabras: sin `hyphens: auto`,
+justificar en español abre ríos de blanco entre palabras largas.
+
+Se aplica únicamente donde la medida lo aguanta (unos 60 caracteres o más):
+resumen del hero, prosa institucional, subtítulos de sección y el texto
+transcrito. Los resúmenes de ficha, los pies, los metadatos y las listas cortas
+siguen alineados a la izquierda **a propósito**: en columnas estrechas la
+justificación produce huecos enormes entre palabras.
+
+Es una decisión de registro, tomada a petición expresa, y tiene un coste
+documentado: WCAG 1.4.8 (nivel AAA) desaconseja el texto justificado porque el
+espaciado irregular dificulta el seguimiento de línea a personas con dislexia.
+El sitio apunta a AA, no a AAA, y la partición de palabras mitiga el efecto.
+Revertirlo es retirar una regla de `global.css`.
+
+#### Imágenes
+
+Las fotografías viven en `src/assets/` y se procesan con `astro:assets`, no en
+`public/`. El build genera las derivadas WebP con `srcset`, fija `width` y
+`height` en el marcado y sirve el tamaño que corresponde a cada viewport. Eso es
+lo que mantiene el CLS en cero: una imagen sin dimensiones declaradas
+reintroduciría el desplazamiento de maquetación que costó eliminar de las
+tipografías.
+
+`public/images/` conserva el logotipo y la imagen social, que necesitan una URL
+estable y sin hash porque los consumen el favicon y las tarjetas de Open Graph.
+
+La fotografía de la portada se publica como banda a ancho completo. Una escena
+ancha en una columna lateral estrecha se lee como una miniatura de manchas de
+color; a ancho completo recupera su contenido y deja de competir con el titular.
+Se desatura al 60 % porque los colores de la escena eran los más saturados de la
+página y peleaban con el acento de la marca.
+
 #### La procedencia como estructura
 
 El bloque de procedencia y el estado de aprobación viven en la columna lateral

@@ -1,6 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import sesionTrabajo from '../assets/sesion-trabajo-mdo-fca.jpeg';
 import { site } from '../data/site';
 import { integrantes } from '../data/integrantes';
 import { articulosHref } from '../lib/reglamento';
@@ -21,63 +23,65 @@ const articulo = await articulosHref([12, 13], base);
   description="REDRYS es la Red de Educación para el Desarrollo Regional y Sostenible de la Facultad de Contaduría y Administración de la UAGro, en Acapulco, Guerrero. Investigación aplicada con impacto social en desarrollo regional, cultura tributaria y políticas públicas."
 >
   <section class="hero container">
-    <div class="hero__grid">
-      <div class="hero__content">
-        <p class="hero__eyebrow">
-          {site.facultyShort} · {site.institution} · {site.addressLocality}
-        </p>
+    <div class="hero__content">
+      <p class="hero__eyebrow">
+        {site.facultyShort} · {site.institution} · {site.addressLocality}
+      </p>
 
-        <h1 class="hero__headline">
-          REDRYS: red académica de la UAGro para el desarrollo regional y sostenible
-          en Guerrero
-        </h1>
+      <h1 class="hero__headline">
+        REDRYS: red académica de la UAGro para el desarrollo regional y sostenible
+        en Guerrero
+      </h1>
 
-        <p class="hero__summary">
-          La Red de Educación para el Desarrollo Regional y Sostenible es un espacio
-          académico multidisciplinario de la Facultad de Contaduría y Administración
-          de la Universidad Autónoma de Guerrero. Reúne a profesores-investigadores,
-          estudiantes de posgrado y colaboradores externos para promover la
-          investigación aplicada con impacto social en el estado.
-        </p>
+      <p class="hero__summary">
+        La Red de Educación para el Desarrollo Regional y Sostenible es un espacio
+        académico multidisciplinario de la Facultad de Contaduría y Administración
+        de la Universidad Autónoma de Guerrero. Reúne a profesores-investigadores,
+        estudiantes de posgrado y colaboradores externos para promover la
+        investigación aplicada con impacto social en el estado.
+      </p>
 
-        <div class="hero__cta-row">
-          <a class="btn btn--primary" href={`${base}la-red/`}>Conoce la red</a>
-          <a class="btn btn--ghost" href={`${base}documentos/`}>
-            Documentos fundacionales
-          </a>
-        </div>
-      </div>
-
-      <div class="panel hero__panel">
-        <img
-          src={`${base}images/logo-redrys-uagro.png`}
-          alt="Logotipo de la REDRYS y la Universidad Autónoma de Guerrero"
-          class="card-logo"
-          width="64"
-          height="64"
-        />
-        <p class="card-title">Red académica multidisciplinaria</p>
-
-        <dl class="hero__facts">
-          <div class="hero__fact">
-            <dt class="hero__fact-label">Constituida</dt>
-            <dd class="hero__fact-value">28 de octubre de 2024</dd>
-          </div>
-          <div class="hero__fact">
-            <dt class="hero__fact-label">Miembros fundadores</dt>
-            <dd class="hero__fact-value">{totalIntegrantes}</dd>
-          </div>
-          <div class="hero__fact">
-            <dt class="hero__fact-label">Líneas de investigación</dt>
-            <dd class="hero__fact-value">{lineas.length}</dd>
-          </div>
-          <div class="hero__fact">
-            <dt class="hero__fact-label">Sede</dt>
-            <dd class="hero__fact-value">Edificio de Posgrado, FCA-UAGro</dd>
-          </div>
-        </dl>
+      <div class="hero__cta-row">
+        <a class="btn btn--primary" href={`${base}la-red/`}>Conoce la red</a>
+        <a class="btn btn--ghost" href={`${base}documentos/`}>
+          Documentos fundacionales
+        </a>
       </div>
     </div>
+
+    <figure class="hero__figure">
+      <Image
+        src={sesionTrabajo}
+        alt="Integrantes de la REDRYS durante una sesión de trabajo en un aula de la Facultad de Contaduría y Administración de la UAGro. Al fondo se proyecta una propuesta de proyectos académicos en colaboración de la Maestría en Dirección de Organizaciones."
+        widths={[720, 1080, 1280]}
+        sizes="(min-width: 1200px) 1104px, 100vw"
+        loading="eager"
+        fetchpriority="high"
+        class="hero__image"
+      />
+      <figcaption class="hero__caption">
+        Sesión de trabajo de la red en la {site.faculty} de la {site.institution}.
+      </figcaption>
+    </figure>
+
+    <dl class="hero__facts">
+      <div class="hero__fact">
+        <dt class="hero__fact-label">Constituida</dt>
+        <dd class="hero__fact-value">28 de octubre de 2024</dd>
+      </div>
+      <div class="hero__fact">
+        <dt class="hero__fact-label">Miembros fundadores</dt>
+        <dd class="hero__fact-value">{totalIntegrantes}</dd>
+      </div>
+      <div class="hero__fact">
+        <dt class="hero__fact-label">Líneas de investigación</dt>
+        <dd class="hero__fact-value">{lineas.length}</dd>
+      </div>
+      <div class="hero__fact">
+        <dt class="hero__fact-label">Sede</dt>
+        <dd class="hero__fact-value">Edificio de Posgrado, FCA-UAGro</dd>
+      </div>
+    </dl>
   </section>
 
   <section class="page-section container">

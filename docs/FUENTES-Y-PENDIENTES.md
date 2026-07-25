@@ -127,15 +127,38 @@ coordinación.
 
 #### Fotografías
 
-- **Entrada necesaria:** fotografía institucional para la portada, fotografías
-  de integrantes e imagen social de 1200×630.
-- **Situación:** existe una fotografía de sesión de trabajo con autorización de
-  uso confirmada el 25 de julio de 2026, pendiente de incorporar al repositorio.
-  Las fotografías de integrantes se aplazaron deliberadamente a una fase
-  posterior.
-- **Criterio de cierre:** imágenes en `public/images/`, con texto alternativo
-  descriptivo y dimensiones declaradas.
+- **Entrada necesaria:** fotografías de integrantes e imagen social de 1200×630.
+- **Situación:** la fotografía de sesión de trabajo, con autorización de uso
+  confirmada el 25 de julio de 2026, **ya está publicada** en la banda de la
+  portada. Las fotografías de integrantes se aplazaron deliberadamente a una
+  fase posterior.
+- **Criterio de cierre:** imágenes en `src/assets/`, con texto alternativo
+  descriptivo, pie de foto y dimensiones declaradas.
 - **Revisión:** ver `roadmap.md`.
+
+##### Segunda fotografía pendiente de autorización
+
+- **Situación:** existe una segunda fotografía (sesión de formación en aula con
+  estudiantes de posgrado, archivo original entregado el 25 de julio de 2026)
+  que **no se ha publicado**. La autorización registrada en este documento
+  cubre únicamente la fotografía de sesión de trabajo.
+- **Motivo:** la imagen muestra estudiantes identificables. La autorización de
+  uso de imagen de estudiantes es un supuesto distinto al de una reunión de
+  trabajo entre integrantes de la red, y no consta registrada.
+- **Criterio de cierre:** autorización de uso de imagen registrada en la tabla
+  de aprobaciones, con fecha y evento confirmados. Con eso, la fotografía puede
+  incorporarse a `/la-red/` para ilustrar la dimensión formativa de la red, o a
+  la galería cuando esa sección se active.
+
+##### Metadatos pendientes de la fotografía publicada
+
+- **Entrada necesaria:** fecha exacta y denominación oficial del evento
+  fotografiado.
+- **Situación:** el pie de foto publicado es deliberadamente genérico («Sesión
+  de trabajo de la red en la Facultad de Contaduría y Administración de la
+  Universidad Autónoma de Guerrero») porque no consta la fecha ni el nombre del
+  evento. No se infirieron.
+- **Criterio de cierre:** pie de foto con fecha y evento confirmados.
 
 #### Galería
 
@@ -208,7 +231,7 @@ coordinación.
 | 2026-07-25 | La Facultad de Comunicación participa formalmente en la red | Coordinación, vía responsable técnico | Ídem | Se conserva la mención a FACOM en `/la-red/` e `/integrantes/` |
 | 2026-07-25 | Dirección postal pública de la sede | Coordinación, vía responsable técnico | Ídem | Añadida a `site.ts` y al `PostalAddress` del JSON-LD |
 | 2026-07-25 | El acta en PDF se mantiene intacta y publicada | Responsable técnico | Ídem | Sin cambios en `public/docs/`; la página HTML no transcribe firmas ni datos personales |
-| 2026-07-25 | Autorización de uso de la fotografía de sesión de trabajo | Coordinación, vía responsable técnico | Ídem | Pendiente de incorporar el archivo; ver `roadmap.md` |
+| 2026-07-25 | Autorización de uso de la fotografía de sesión de trabajo | Coordinación, vía responsable técnico | Ídem | Incorporada como `src/assets/sesion-trabajo-mdo-fca.jpeg`, publicada en la banda de la portada con pie y texto alternativo |
 | 2026-07-25 | Uso de los datos de perfil del sitio de la Maestría en Dirección de Organizaciones | Responsable técnico | Ídem | 11 perfiles publicados con nota de procedencia visible; pendiente de ratificación institucional |
 
 No adjuntes conversaciones privadas ni documentos con firmas. Registra una

@@ -180,6 +180,40 @@ h3 {
   color: var(--color-ink);
 }
 
+/* ============================================
+   JUSTIFICACIÓN DEL TEXTO CORRIDO
+   ============================================
+
+   El texto institucional se justifica, como en una publicación académica
+   impresa. En pantalla eso solo funciona con partición de palabras: sin
+   `hyphens`, justificar en español abre ríos de blanco entre palabras largas.
+
+   Se aplica únicamente al texto corrido con medida suficiente (~60 caracteres
+   o más). En columnas estrechas (resúmenes de ficha, pies, metadatos, listas
+   cortas) la justificación produce huecos enormes entre palabras, así que esos
+   elementos siguen alineados a la izquierda a propósito.
+
+   Nota de accesibilidad: WCAG 1.4.8 (nivel AAA) desaconseja el texto
+   justificado porque el espaciado irregular dificulta el seguimiento de línea
+   a personas con dislexia. El sitio apunta a AA, no a AAA, y la partición de
+   palabras mitiga el efecto; si en revisión resulta molesto, basta con retirar
+   esta regla.
+   -------------------------------------------- */
+.hero__summary,
+.content-block__text,
+.section-title__subtitle,
+.objective-highlight,
+.prose p,
+.prose li {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  /* Más oportunidades de partición = menos líneas con espaciado flojo.
+     Parte palabras de 6 letras o más, dejando 3 letras a cada lado. */
+  hyphenate-limit-chars: 6 3 3;
+}
+
 img {
   max-width: 100%;
   height: auto;
@@ -584,17 +618,11 @@ ol {
   padding-bottom: var(--space-group);
 }
 
-.hero__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-xl);
-  align-items: start;
-}
-
 .hero__content {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  max-width: 46rem;
 }
 
 .hero__eyebrow {
@@ -630,27 +658,55 @@ ol {
   padding-top: var(--space-3xs);
 }
 
-/* Panel de datos. No lleva desplazamiento negativo: el `margin-left: -3rem`
-   anterior solapaba una columna fotográfica que ya no existe en el marcado y
-   recortaba el contenido entre 768 y 1023 px. */
-.hero__panel .card-logo {
-  width: 3rem;
-  height: 3rem;
-  object-fit: contain;
-  margin-bottom: var(--space-2xs);
-}
-
-.hero__panel .card-title {
-  font-family: var(--font-serif);
-  font-size: var(--text-base);
-  line-height: 1.3;
-  color: var(--color-ink);
-}
-
-.hero__facts {
+/* Banda documental.
+   La fotografía es una escena ancha (una mesa larga con diez personas) y en una
+   columna lateral de 380 px se leía como una miniatura de manchas de color.
+   A ancho completo y con recorte panorámico recupera su contenido, deja de
+   competir con el titular y el recorte elimina techo y suelo, que es donde
+   estaba el desorden visual. */
+.hero__figure {
   display: flex;
   flex-direction: column;
-  margin-top: var(--space-xs);
+  gap: var(--space-2xs);
+  margin-top: var(--space-group);
+}
+
+.hero__image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 21 / 9;
+  object-fit: cover;
+  object-position: center 58%;
+  border-radius: var(--radius);
+  background-color: var(--color-rule);
+  /* El mantel azul y las sillas naranjas son los colores más saturados de la
+     página. Desaturar los devuelve al registro apagado del sistema sin
+     convertir la escena en un documento histórico. */
+  filter: saturate(0.6) contrast(1.05);
+}
+
+.hero__caption {
+  font-family: var(--font-sans);
+  font-size: var(--text-3xs);
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+  max-width: var(--measure);
+}
+
+/* En pantallas estrechas el recorte panorámico dejaría una tira ilegible. */
+@media (max-width: 767px) {
+  .hero__image {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Franja de datos institucionales. Cuatro pares término/valor separados por
+   filetes: el mismo lenguaje que el resto de los datos del sitio. */
+.hero__facts {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-top: var(--space-group);
+  padding-top: var(--space-md);
   border-top: 1px solid var(--color-rule);
 }
 
@@ -658,12 +714,37 @@ ol {
   display: flex;
   flex-direction: column;
   gap: var(--space-3xs);
-  padding-block: var(--space-2xs);
+  padding-block: var(--space-xs);
   border-bottom: 1px solid var(--color-rule);
 }
 
 .hero__fact:last-child {
   border-bottom: 0;
+}
+
+@media (min-width: 640px) {
+  .hero__facts {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 var(--space-lg);
+  }
+
+  .hero__fact:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero__facts {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+  }
+
+  .hero__fact {
+    border-bottom: 0;
+    border-left: 1px solid var(--color-rule);
+    padding-block: 0;
+    padding-left: var(--space-sm);
+  }
 }
 
 .hero__fact-label {
@@ -702,12 +783,6 @@ ol {
   }
 }
 
-@media (min-width: 1024px) {
-  .hero__grid {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
-    gap: var(--space-group);
-  }
-}
 
 /* ============================================
    SECCIONES Y TÍTULOS DE PÁGINA

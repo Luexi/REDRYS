@@ -194,12 +194,40 @@ entrega.
 
 ### Imágenes
 
-Coloca imágenes públicas en `public/images/`.
+Hay dos destinos y no son intercambiables:
 
-- Usa nombres descriptivos en minúsculas y con guiones.
-- Optimiza peso y dimensiones antes de agregarlas.
-- Añade texto alternativo útil en la página que las muestra.
-- No publiques fotografías sin autorización de uso.
+| Tipo | Dónde | Por qué |
+| --- | --- | --- |
+| Fotografías de contenido | `src/assets/` | Se procesan con `astro:assets`: derivadas WebP, `srcset` y `width`/`height` automáticos |
+| Logotipo e imagen social | `public/images/` | Necesitan una URL estable y sin hash para el favicon y Open Graph |
+
+Para añadir una fotografía:
+
+```astro
+---
+import { Image } from 'astro:assets';
+import foto from '../assets/nombre-descriptivo.jpeg';
+---
+<figure>
+  <Image src={foto} alt="Descripción real de la escena" widths={[720, 1080, 1280]} sizes="100vw" />
+  <figcaption>Pie de foto con lugar y, si consta, fecha y evento.</figcaption>
+</figure>
+```
+
+- Usa nombres descriptivos en minúsculas y con guiones. `WhatsApp Image
+  2026-07-25 at 11.27.58 AM.jpeg` no es un nombre.
+- **No publiques fotografías sin autorización de uso registrada** en
+  `docs/FUENTES-Y-PENDIENTES.md`. Una autorización para una reunión de trabajo
+  entre integrantes no cubre una fotografía con estudiantes identificables: son
+  supuestos distintos.
+- El texto alternativo describe la escena, no la etiqueta. «Sesión de trabajo»
+  no sirve; di quién, dónde y qué se ve.
+- **No inventes fecha ni evento en el pie.** Si no constan, escribe un pie
+  genérico y registra el dato como pendiente.
+- Declara siempre `alt`. Si la imagen es decorativa, no la publiques: este sitio
+  no usa imágenes decorativas.
+- Después de añadirla, comprueba que el CLS siga en cero y revisa el recorte
+  entre 320 y 1440 px.
 - Si reemplazas `screen.png`, revisa las previsualizaciones Open Graph y
   Twitter.
 
@@ -295,6 +323,13 @@ Cuatro reglas del sistema conviene no romper por descuido:
 4. **El verde es semántico.** `--color-ratified` solo marca contenido respaldado
    por un documento institucional. No lo uses como acento decorativo; el acento
    del sitio es `--color-accent` y es único.
+5. **La justificación va con partición de palabras.** El texto corrido se
+   justifica, pero siempre acompañado de `hyphens: auto`: sin partir palabras,
+   justificar en español abre ríos de blanco. Solo se aplica a texto con medida
+   suficiente (~60 caracteres o más). **No extiendas `text-align: justify` a
+   resúmenes de ficha, pies ni metadatos**: en columnas estrechas produce huecos
+   enormes entre palabras. Si en revisión con lectores resulta molesto, la regla
+   está aislada en un solo bloque de `global.css` y basta con retirarla.
 
 Para actualizar una tipografía:
 

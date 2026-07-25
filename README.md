@@ -86,6 +86,7 @@ REDRYS/
 │   └── verify-sites-build.mjs       # Verifica el artefacto final
 ├── sites/worker.mjs                 # Worker de entrega para ChatGPT Sites
 ├── src/
+│   ├── assets/                      # Fotografías; se optimizan con astro:assets
 │   ├── components/                  # Header, footer, breadcrumbs, fichas, procedencia, índice
 │   ├── content/                     # Colecciones de líneas y documentos (Markdown)
 │   ├── content.config.ts            # Esquemas Zod de las colecciones

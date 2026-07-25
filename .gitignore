@@ -3,9 +3,10 @@ dist/
 .astro/
 estadored.md
 
-# Archivos originales sueltos (ya copiados a public/)
+# Archivos originales sueltos (ya copiados a public/ o a src/assets/)
 /code.html
 /screen.png
 /*.pdf
 /*.docx.pdf
 /Logo REDRYS UAGro.png
+/WhatsApp Image*.jpeg
