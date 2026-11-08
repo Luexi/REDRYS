@@ -3,10 +3,12 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-    # Un push que solo toca documentación no cambia el sitio.
+    # Un push que solo toca documentación no cambia el sitio. Solo se omite
+    # el Markdown de la raíz y docs/: src/content/**/*.md son colecciones de
+    # Astro que sí se publican (en los filtros de GitHub, * no cruza /).
     paths-ignore:
-      - '**.md'
-      - '**.MD'
+      - '*.md'
+      - '*.MD'
       - 'docs/**'
   workflow_dispatch:
 
