@@ -411,7 +411,8 @@ Además realiza una revisión visual:
     PDFs, 404 y SEO.
 
 Un push a `main` activa el workflow de GitHub Pages mientras permanezca
-habilitado durante la migración, pero no actualiza ChatGPT Sites. Después de
+habilitado durante la migración, salvo que solo cambie documentación (`*.md`,
+`*.MD` o `docs/**`, excluidos con `paths-ignore`), pero no actualiza ChatGPT Sites. Después de
 retirar Pages, ese workflow se convertirá en una validación de build.
 
 ChatGPT Sites requiere guardar y desplegar una versión asociada al SHA

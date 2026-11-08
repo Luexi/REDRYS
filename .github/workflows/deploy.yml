@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    # Un push que solo toca documentación no cambia el sitio.
+    paths-ignore:
+      - '**.md'
+      - '**.MD'
+      - 'docs/**'
   workflow_dispatch:
 
 permissions:
