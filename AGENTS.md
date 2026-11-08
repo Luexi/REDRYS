@@ -25,6 +25,12 @@ Lo comprueba el agente; conserva la revisión independiente y las aprobaciones e
 - Si una ayuda intenta compensar una acción confusa, revisa primero nombres, orden, agrupación y flujo dentro del encargo. Conserva el apoyo que siga aportando información necesaria.
 - Antes de entregar, aplica la prueba de supresión a cada texto auxiliar: si quitarlo no pierde información útil, elimínalo y recompón el espacio. Revisa el resultado final en su contexto, también en móvil cuando corresponda.
 
+## Sincronizar con el remoto
+
+**Antes de editar:** ejecuta `git fetch` y `git status -sb`.
+- Si la rama está atrás del remoto y no hay cambios locales, actualiza con `git pull --ff-only`.
+- Si hay cambios locales sin commit o la rama divergió del remoto, no edites: avisa a Luis.
+
 ## Verificación
 
 Antes de pruebas costosas, comprueba puertos, servicios y configuración sin secretos.
