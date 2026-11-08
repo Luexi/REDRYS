@@ -28,8 +28,11 @@ Lo comprueba el agente; conserva la revisión independiente y las aprobaciones e
 ## Sincronizar con el remoto
 
 **Antes de editar:** ejecuta `git fetch` y `git status -sb`.
-- Si la rama está atrás del remoto y no hay cambios locales, actualiza con `git pull --ff-only`.
-- Si hay cambios locales sin commit o la rama divergió del remoto, no edites: avisa a Luis.
+- **Rama al día:** trabaja normal.
+- **Rama atrás del remoto y sin cambios locales:** actualiza con `git pull --ff-only`.
+- **Rama atrás del remoto y con cambios locales** (tuyos, de otro agente o de Luis): no actualices por tu cuenta; avisa a Luis.
+- **Rama separada del remoto (divergida):** no edites; avisa a Luis.
+- **Cambios sin commit de otros agentes o de Luis:** no son motivo para detenerte. No los toques, no los incluyas en tus commits (`git add` solo de tus archivos) y no edites esos mismos archivos; si necesitas uno de ellos, avisa a Luis.
 
 ## Verificación
 
